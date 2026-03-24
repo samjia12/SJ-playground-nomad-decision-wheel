@@ -62,6 +62,18 @@
                 "0%, 100%": { transform: "translateY(0px)" },
                 "50%": { transform: "translateY(-6px)" },
               },
+              marqueeScroll: {
+                "0%": { transform: "translateX(0)" },
+                "100%": { transform: "translateX(-50%)" },
+              },
+              driftGlow: {
+                "0%, 100%": { transform: "translate3d(0, 0, 0) scale(1)" },
+                "50%": { transform: "translate3d(12px, -10px, 0) scale(1.06)" },
+              },
+              beamSweep: {
+                "0%": { transform: "translateX(-140%) skewX(-24deg)" },
+                "100%": { transform: "translateX(220%) skewX(-24deg)" },
+              },
             },
             animation: {
               "rise-in": "riseIn 700ms cubic-bezier(0.22, 1, 0.36, 1) both",
@@ -69,6 +81,9 @@
               "history-in": "historyIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both",
               halo: "pulseHalo 1.8s ease-in-out infinite",
               float: "floatSlow 7s ease-in-out infinite",
+              marquee: "marqueeScroll 24s linear infinite",
+              drift: "driftGlow 10s ease-in-out infinite",
+              beam: "beamSweep 6.4s linear infinite",
             },
           },
         },
@@ -107,10 +122,11 @@
       body {
         min-height: 100vh;
         background:
-          radial-gradient(circle at 20% 10%, rgba(98, 126, 234, 0.18), transparent 30%),
-          radial-gradient(circle at 78% 18%, rgba(20, 241, 149, 0.1), transparent 28%),
-          radial-gradient(circle at 50% 78%, rgba(255, 138, 101, 0.08), transparent 35%),
-          linear-gradient(135deg, #070b10 0%, #0b0f14 45%, #101726 100%);
+          radial-gradient(circle at 20% 10%, rgba(98, 126, 234, 0.22), transparent 30%),
+          radial-gradient(circle at 78% 18%, rgba(20, 241, 149, 0.14), transparent 28%),
+          radial-gradient(circle at 50% 78%, rgba(255, 138, 101, 0.1), transparent 35%),
+          conic-gradient(from 180deg at 50% 50%, rgba(98, 126, 234, 0.06), transparent 20%, rgba(20, 241, 149, 0.05), transparent 40%, rgba(255, 184, 107, 0.06), transparent 62%, rgba(98, 126, 234, 0.05), transparent 100%),
+          linear-gradient(135deg, #05080d 0%, #0b0f14 42%, #101726 100%);
         color: var(--text-primary);
         overflow-x: hidden;
       }
@@ -145,6 +161,61 @@
         backdrop-filter: blur(22px);
         -webkit-backdrop-filter: blur(22px);
         box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+      }
+
+      .hero-gradient-text {
+        background:
+          linear-gradient(135deg, rgba(245, 247, 250, 1) 0%, rgba(214, 194, 161, 0.92) 36%, rgba(20, 241, 149, 0.86) 68%, rgba(98, 126, 234, 0.96) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .story-panel {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .story-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          110deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.02) 35%,
+          rgba(255, 255, 255, 0.08) 50%,
+          transparent 65%
+        );
+        transform: translateX(-140%) skewX(-24deg);
+        pointer-events: none;
+        animation: beamSweep 6.4s linear infinite;
+      }
+
+      .ambient-orb {
+        position: absolute;
+        border-radius: 999px;
+        filter: blur(18px);
+        opacity: 0.55;
+        pointer-events: none;
+      }
+
+      .ambient-orb--blue {
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(98, 126, 234, 0.28), transparent 70%);
+      }
+
+      .ambient-orb--green {
+        width: 190px;
+        height: 190px;
+        background: radial-gradient(circle, rgba(20, 241, 149, 0.18), transparent 70%);
+      }
+
+      .ambient-orb--coral {
+        width: 140px;
+        height: 140px;
+        background: radial-gradient(circle, rgba(255, 138, 101, 0.18), transparent 72%);
       }
 
       .section-ring {
@@ -225,6 +296,59 @@
         background: rgba(255, 255, 255, 0.06);
       }
 
+      .marketing-card {
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04)),
+          radial-gradient(circle at top right, rgba(20, 241, 149, 0.1), transparent 40%);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+      }
+
+      .marquee-shell {
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .marquee-track {
+        display: flex;
+        width: max-content;
+        animation: marqueeScroll 24s linear infinite;
+      }
+
+      .social-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.04)),
+          radial-gradient(circle at top left, rgba(98, 126, 234, 0.08), transparent 45%);
+      }
+
+      .social-card::after {
+        content: "";
+        position: absolute;
+        inset: auto -8% -55% auto;
+        width: 160px;
+        height: 160px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 70%);
+        pointer-events: none;
+      }
+
+      .cta-panel {
+        background:
+          linear-gradient(135deg, rgba(98, 126, 234, 0.16), rgba(20, 241, 149, 0.12)),
+          rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(22px);
+        -webkit-backdrop-filter: blur(22px);
+        box-shadow:
+          0 0 0 1px rgba(255, 255, 255, 0.04),
+          0 32px 80px rgba(0, 0, 0, 0.36);
+      }
+
       .modal-backdrop {
         background: rgba(7, 10, 16, 0.68);
         backdrop-filter: blur(10px);
@@ -277,37 +401,93 @@
     </a>
 
     <div class="relative mx-auto min-h-screen max-w-[1520px] px-5 pb-8 pt-6 sm:px-8 lg:px-10">
+      <div class="ambient-orb ambient-orb--blue left-[-70px] top-[120px] animate-drift"></div>
+      <div class="ambient-orb ambient-orb--green right-[4%] top-[340px] animate-drift [animation-delay:1.2s]"></div>
+      <div class="ambient-orb ambient-orb--coral bottom-[220px] left-[12%] animate-drift [animation-delay:2.4s]"></div>
+
       <header class="animate-rise-in">
-        <div class="flex flex-col gap-5 rounded-[28px] border border-white/10 bg-white/[0.03] px-6 py-6 shadow-glow sm:px-8 lg:flex-row lg:items-end lg:justify-between">
-          <div class="space-y-3">
-            <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-sand/80">
-              Digital Nomad Ritualware
-            </p>
-            <div class="space-y-2">
-              <h1 class="font-display text-3xl leading-none text-white sm:text-5xl xl:text-6xl">
-                Nomad Decision Wheel
-              </h1>
-              <p class="max-w-2xl text-sm text-slate-300 sm:text-base">
-                Spin the wheel. Outsource your life choices.
-              </p>
+        <div class="story-panel relative overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03] px-6 py-6 shadow-glow sm:px-8 lg:px-10 lg:py-8">
+          <div class="relative z-10 flex flex-col gap-7">
+            <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div class="space-y-3">
+                <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-sand/80">
+                  Digital Nomad Ritualware
+                </p>
+                <div class="space-y-2">
+                  <h1 class="font-display text-3xl leading-none text-white sm:text-5xl xl:text-6xl">
+                    Nomad Decision Wheel
+                  </h1>
+                  <p class="max-w-2xl text-sm text-slate-300 sm:text-base">
+                    Spin the wheel. Outsource your life choices.
+                  </p>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-3 lg:justify-end">
+                <a
+                  href="#main-content"
+                  class="spin-button inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white transition duration-200"
+                >
+                  Spin Now
+                </a>
+                <a
+                  href="#broadcast"
+                  class="ghost-button inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white transition duration-200"
+                >
+                  Send the Omen
+                </a>
+              </div>
             </div>
-          </div>
-          <div class="grid gap-3 text-right sm:grid-cols-3 lg:min-w-[420px]">
-            <div class="status-pill rounded-2xl px-4 py-3">
-              <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Mode</p>
-              <p class="mt-1 font-display text-sm text-white">Cyber Fortune</p>
-            </div>
-            <div class="status-pill rounded-2xl px-4 py-3">
-              <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Outcomes</p>
-              <p class="mt-1 font-display text-sm text-white">50 Static Fates</p>
-            </div>
-            <div class="status-pill rounded-2xl px-4 py-3">
-              <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Accuracy</p>
-              <p class="mt-1 font-display text-sm text-white">Emotionally Dubious</p>
+
+            <div class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+              <div class="space-y-4">
+                <p class="max-w-3xl text-base leading-7 text-slate-300 sm:text-lg">
+                  A high-contrast fate machine for digital nomads, overthinkers, and late-night chart goblins who want their indecision wrapped in better interface design.
+                </p>
+
+                <div class="grid gap-3 sm:grid-cols-3">
+                  <div class="status-pill rounded-[24px] px-4 py-4">
+                    <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Mode</p>
+                    <p class="mt-1 font-display text-sm text-white">Cyber Fortune</p>
+                  </div>
+                  <div class="status-pill rounded-[24px] px-4 py-4">
+                    <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Outcomes</p>
+                    <p class="mt-1 font-display text-sm text-white">50 Static Fates</p>
+                  </div>
+                  <div class="status-pill rounded-[24px] px-4 py-4">
+                    <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Accuracy</p>
+                    <p class="mt-1 font-display text-sm text-white">Emotionally Dubious</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="marketing-card rounded-[28px] p-5">
+                <p class="text-[11px] uppercase tracking-[0.24em] text-slate-500">Why it lands</p>
+                <p class="mt-3 text-lg font-semibold leading-tight text-white">
+                  Stylish surrender for people with too many tabs open.
+                </p>
+                <p class="mt-3 text-sm leading-6 text-slate-300">
+                  One tap. One spin. One suspiciously cinematic verdict.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </header>
+
+      <section class="mt-5 animate-rise-in [animation-delay:100ms]">
+        <div class="marquee-shell rounded-full px-0 py-3">
+          <div class="marquee-track gap-3 font-display text-[11px] uppercase tracking-[0.34em] text-slate-300">
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For the wildly undecided</span>
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For internet-native prophecy enjoyers</span>
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For airport lounge philosophers</span>
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For degen optimism with typography</span>
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For the wildly undecided</span>
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For internet-native prophecy enjoyers</span>
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For airport lounge philosophers</span>
+            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">For degen optimism with typography</span>
+          </div>
+        </div>
+      </section>
 
       <main
         id="main-content"
@@ -465,6 +645,109 @@
           </div>
         </aside>
       </main>
+
+      <section
+        id="manifesto"
+        class="mt-6 grid gap-6 animate-rise-in [animation-delay:360ms] lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
+      >
+        <div class="marketing-card rounded-[30px] p-6 sm:p-8">
+          <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-sand/80">
+            Landing Narrative
+          </p>
+          <h2 class="mt-4 max-w-3xl font-display text-3xl leading-tight text-white sm:text-5xl">
+            A ceremonial interface for moments when adult decision-making feels offensively manual.
+          </h2>
+          <p class="mt-5 max-w-2xl text-base leading-8 text-slate-300">
+            Nomad Decision Wheel turns indecision into spectacle. You click once, the wheel spins like it has seen things, and an intentionally unqualified oracle hands you a sentence that feels smarter than it has any right to.
+          </p>
+          <p class="mt-4 max-w-2xl text-base leading-8 text-slate-400">
+            It is not built to optimize your life. It is built to make the chaos feel strangely premium, briefly coherent, and extremely shareable in the group chat.
+          </p>
+        </div>
+
+        <div class="grid gap-4">
+          <div class="marketing-card rounded-[28px] p-6">
+            <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">What you get</p>
+            <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-300">
+              <li>SVG wheel that feels ceremonial instead of casino-cheap.</li>
+              <li>Fifty static outcomes with existential, unserious, internet-native copy.</li>
+              <li>History, share flow, and enough motion to make the fate feel expensive.</li>
+            </ul>
+          </div>
+          <div class="marketing-card rounded-[28px] p-6">
+            <p class="text-[11px] uppercase tracking-[0.22em] text-slate-500">What you absolutely do not get</p>
+            <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-300">
+              <li>Real advice, financial literacy, or moral supervision.</li>
+              <li>Any backend, database, or genuine cosmic authority.</li>
+              <li>Protection from the consequences of taking the joke too seriously.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="broadcast"
+        class="mt-6 grid gap-6 animate-rise-in [animation-delay:420ms] xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
+      >
+        <div class="marketing-card rounded-[30px] p-6 sm:p-8">
+          <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-green/80">
+            Social Propagation
+          </p>
+          <h2 class="mt-4 max-w-xl font-display text-3xl leading-tight text-white sm:text-5xl">
+            The wheel becomes real the moment you send it to someone equally unstable.
+          </h2>
+          <p class="mt-5 max-w-xl text-base leading-8 text-slate-300">
+            Good internet products do not just work. They travel. This one is engineered for screenshots, ironic endorsements, and “this felt too accurate” messages at irresponsible hours.
+          </p>
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button
+              id="share-project"
+              type="button"
+              class="spin-button inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white transition duration-200"
+            >
+              Share This Bad Idea
+            </button>
+            <a
+              href="#main-content"
+              class="ghost-button inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white transition duration-200"
+            >
+              Spin for Receipts
+            </a>
+          </div>
+          <p id="project-share-feedback" class="mt-4 min-h-[1.5rem] text-sm text-accent-sand"></p>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-3" id="social-snippets"></div>
+      </section>
+
+      <section class="mt-6 animate-rise-in [animation-delay:480ms]">
+        <div class="cta-panel rounded-[34px] px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
+          <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end">
+            <div>
+              <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-sand/80">
+                Final CTA
+              </p>
+              <h2 class="mt-4 max-w-4xl font-display text-3xl leading-tight text-white sm:text-5xl">
+                Fate, but make it polished enough to ship.
+              </h2>
+              <p class="mt-4 max-w-2xl text-base leading-8 text-slate-300">
+                Spin the wheel, collect a suspiciously cinematic verdict, and forward the problem to a friend who understands both vibes and poor judgment.
+              </p>
+            </div>
+            <div class="flex flex-col gap-3 lg:items-end">
+              <a
+                href="#main-content"
+                class="spin-button inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white transition duration-200"
+              >
+                Enter the Wheel
+              </a>
+              <p class="text-xs uppercase tracking-[0.22em] text-slate-500">
+                Entertainment product. Spiritually overqualified.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <footer class="mt-6 px-2 pb-4 text-center text-xs leading-6 text-slate-500">
         For entertainment only. Please do not actually outsource your financial future to a glowing roulette wheel.

@@ -4,6 +4,7 @@ Nomad Decision Wheel is a static single-page "fate roulette" for digital nomads,
 
 ## Features
 
+- Landing-page-style narrative sections, social propagation copy, and bold cyber-luxury visual treatment
 - 50 handcrafted outcomes across travel, degen finance satire, discipline, social chaos, and absurd spirituality
 - SVG-based decision wheel with inertial spin and accurate stopping logic
 - Glassmorphism interpretation modal with Web Share API and clipboard fallback
@@ -13,7 +14,7 @@ Nomad Decision Wheel is a static single-page "fate roulette" for digital nomads,
 
 ## Run locally
 
-Because the page uses ES modules, serve the folder with any static file server instead of opening the HTML file as a raw file URL.
+Serve the folder with any static file server for the best local experience.
 
 ### Option 1
 
@@ -32,6 +33,11 @@ Use any local static server you already prefer.
 - `index.html` - page structure, Tailwind CDN config, and custom visual styling
 - `data.js` - 50 outcomes and category metadata
 - `app.js` - SVG wheel generation, spin physics, modal logic, sharing, and history persistence
+- `.github/workflows/deploy-pages.yml` - GitHub Pages deployment workflow
+
+## Deployment
+
+The repo includes a GitHub Pages workflow that publishes the static site from the repository itself through GitHub Actions.
 
 ## Notes
 

@@ -33,6 +33,9 @@ const elements = {
   spinAgain: document.querySelector("#spin-again"),
   shareFate: document.querySelector("#share-fate"),
   shareFeedback: document.querySelector("#share-feedback"),
+  shareProject: document.querySelector("#share-project"),
+  projectShareFeedback: document.querySelector("#project-share-feedback"),
+  socialSnippets: document.querySelector("#social-snippets"),
 };
 
 function polarToCartesian(radius, angleDeg) {
@@ -101,6 +104,33 @@ function renderLegend() {
       <span class="text-[11px] uppercase tracking-[0.18em] text-slate-500">${OUTCOMES.filter((item) => item.category === category.key).length}</span>
     `;
     elements.categoryLegend.appendChild(item);
+  });
+}
+
+function renderSocialSnippets() {
+  if (!elements.socialSnippets) return;
+
+  const selections = [
+    OUTCOMES[0],
+    OUTCOMES[11],
+    OUTCOMES[30],
+  ];
+
+  elements.socialSnippets.innerHTML = "";
+
+  selections.forEach((outcome) => {
+    const category = CATEGORY_META[outcome.category];
+    const card = document.createElement("article");
+    card.className = "social-card rounded-[28px] p-5";
+    card.innerHTML = `
+      <div class="flex items-center gap-3">
+        <span class="h-3 w-3 rounded-full" style="background:${category.color}; box-shadow: 0 0 18px ${category.glow};"></span>
+        <span class="text-[11px] uppercase tracking-[0.22em] text-slate-500">${category.name}</span>
+      </div>
+      <p class="mt-4 text-lg font-semibold leading-7 text-white">"${outcome.label}"</p>
+      <p class="mt-4 font-mono text-sm leading-7 text-slate-300">${outcome.shareText}</p>
+    `;
+    elements.socialSnippets.appendChild(card);
   });
 }
 
@@ -297,6 +327,33 @@ function resetShareFeedback() {
   elements.shareFeedback.textContent = "";
 }
 
+function resetProjectShareFeedback() {
+  if (elements.projectShareFeedback) {
+    elements.projectShareFeedback.textContent = "";
+  }
+}
+
+async function shareText({ title, text, feedbackElement, successMessage }) {
+  try {
+    if (navigator.share) {
+      await navigator.share({ title, text });
+      feedbackElement.textContent = successMessage;
+      return;
+    }
+
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      feedbackElement.textContent = "Copied to clipboard. Chaos now scales peer-to-peer.";
+      return;
+    }
+
+    feedbackElement.textContent = text;
+  } catch (error) {
+    console.warn("Sharing failed", error);
+    feedbackElement.textContent = "Sharing failed gracefully. The omen remains local.";
+  }
+}
+
 function openModal(outcome, historyEntry) {
   state.lastFocusedElement = document.activeElement;
   state.selectedOutcome = outcome;
@@ -364,30 +421,28 @@ async function handleSpin() {
 
 async function handleShare() {
   if (!state.selectedOutcome) return;
-
-  const sharePayload = {
+  await shareText({
     title: "Nomad Decision Wheel",
     text: state.selectedOutcome.shareText,
-  };
+    feedbackElement: elements.shareFeedback,
+    successMessage: "Fate shared. Accountability remains non-transferable.",
+  });
+}
 
-  try {
-    if (navigator.share) {
-      await navigator.share(sharePayload);
-      elements.shareFeedback.textContent = "Fate shared. Accountability remains non-transferable.";
-      return;
-    }
+async function handleProjectShare() {
+  if (!elements.projectShareFeedback) return;
 
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(state.selectedOutcome.shareText);
-      elements.shareFeedback.textContent = "Share text copied. Prophecy now lives in your clipboard.";
-      return;
-    }
+  resetProjectShareFeedback();
 
-    elements.shareFeedback.textContent = state.selectedOutcome.shareText;
-  } catch (error) {
-    console.warn("Sharing failed", error);
-    elements.shareFeedback.textContent = "Sharing declined by the cosmos. Try again if you feel dramatic.";
-  }
+  const promoText =
+    "I found Nomad Decision Wheel, a cyber-chic fate roulette for digital nomads and other beautifully unserious adults. Spin the wheel. Outsource your life choices.";
+
+  await shareText({
+    title: "Nomad Decision Wheel",
+    text: promoText,
+    feedbackElement: elements.projectShareFeedback,
+    successMessage: "Project link launched into the group chat. You have done enough.",
+  });
 }
 
 function handleClearHistory() {
@@ -409,6 +464,9 @@ function bindEvents() {
     await handleSpin();
   });
   elements.shareFate.addEventListener("click", handleShare);
+  if (elements.shareProject) {
+    elements.shareProject.addEventListener("click", handleProjectShare);
+  }
   elements.clearHistory.addEventListener("click", handleClearHistory);
   elements.closeModal.addEventListener("click", () => closeModal({ focusSpin: true }));
   elements.modal.addEventListener("click", (event) => {
@@ -431,6 +489,7 @@ function bindEvents() {
 function init() {
   state.history = getStoredHistory();
   renderLegend();
+  renderSocialSnippets();
   renderWheel();
   renderHistory();
   bindEvents();
