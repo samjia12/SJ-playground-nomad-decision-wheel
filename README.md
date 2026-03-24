@@ -33,11 +33,14 @@ Use any local static server you already prefer.
 - `index.html` - page structure, Tailwind CDN config, and custom visual styling
 - `data.js` - 50 outcomes and category metadata
 - `app.js` - SVG wheel generation, spin physics, modal logic, sharing, and history persistence
-- `.github/workflows/deploy-pages.yml` - GitHub Pages deployment workflow
 
 ## Deployment
 
-The repo includes a GitHub Pages workflow that publishes the static site from the repository itself through GitHub Actions.
+GitHub Pages is configured to publish directly from the `main` branch root.
+
+Live URL:
+
+- [https://samjia12.github.io/nomad-decision-wheel/](https://samjia12.github.io/nomad-decision-wheel/)
 
 ## Notes
 
