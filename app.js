@@ -1,42 +1,24 @@
-const { CATEGORY_META, OUTCOMES } = window.NOMAD_WHEEL_DATA;
+const data = window.NOMAD_WHEEL_DATA;
+const CATEGORY_META = data?.CATEGORY_META ?? {};
+const OUTCOMES = data?.OUTCOMES ?? [];
 
 const STORAGE_KEY = "nomad-decision-wheel-history";
 const HISTORY_LIMIT = 15;
 const SEGMENT_COUNT = OUTCOMES.length;
-const SEGMENT_ANGLE = 360 / SEGMENT_COUNT;
+const SEGMENT_ANGLE = SEGMENT_COUNT ? 360 / SEGMENT_COUNT : 0;
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 const state = {
-  status: "idle",
+  status: "booting",
   currentRotation: 0,
   selectedOutcome: null,
   history: [],
   lastFocusedElement: null,
   modalTimer: null,
+  lastOutcomeId: null,
 };
 
-const elements = {
-  wheelSegments: document.querySelector("#wheel-segments"),
-  wheelShell: document.querySelector("#wheel-shell"),
-  spinButton: document.querySelector("#spin-button"),
-  historyList: document.querySelector("#history-list"),
-  clearHistory: document.querySelector("#clear-history"),
-  emptyTemplate: document.querySelector("#history-empty-template"),
-  categoryLegend: document.querySelector("#category-legend"),
-  modal: document.querySelector("#result-modal"),
-  modalPanel: document.querySelector("#result-modal .glass-panel"),
-  closeModal: document.querySelector("#close-modal"),
-  modalTitle: document.querySelector("#modal-title"),
-  modalCategory: document.querySelector("#modal-category"),
-  modalTime: document.querySelector("#modal-time"),
-  modalInterpretation: document.querySelector("#modal-interpretation"),
-  spinAgain: document.querySelector("#spin-again"),
-  shareFate: document.querySelector("#share-fate"),
-  shareFeedback: document.querySelector("#share-feedback"),
-  shareProject: document.querySelector("#share-project"),
-  projectShareFeedback: document.querySelector("#project-share-feedback"),
-  socialSnippets: document.querySelector("#social-snippets"),
-};
+let elements = {};
 
 function polarToCartesian(radius, angleDeg) {
   const angleRad = (angleDeg * Math.PI) / 180;
@@ -44,6 +26,98 @@ function polarToCartesian(radius, angleDeg) {
     x: Math.cos(angleRad) * radius,
     y: Math.sin(angleRad) * radius,
   };
+}
+
+function queryElements() {
+  return {
+    wheelSegments: document.querySelector("#wheel-segments"),
+    wheelShell: document.querySelector("#wheel-shell"),
+    spinButton: document.querySelector("#spin-button"),
+    wheelStatus: document.querySelector("#wheel-status"),
+    resultTeaser: document.querySelector("#result-teaser"),
+    resultTeaserDot: document.querySelector("#result-teaser-dot"),
+    resultTeaserCategory: document.querySelector("#result-teaser-category"),
+    resultTeaserLabel: document.querySelector("#result-teaser-label"),
+    resultTeaserCopy: document.querySelector("#result-teaser-copy"),
+    historyList: document.querySelector("#history-list"),
+    clearHistory: document.querySelector("#clear-history"),
+    emptyTemplate: document.querySelector("#history-empty-template"),
+    categoryLegend: document.querySelector("#category-legend"),
+    modal: document.querySelector("#result-modal"),
+    modalPanel: document.querySelector("#result-modal .glass-panel"),
+    closeModal: document.querySelector("#close-modal"),
+    modalTitle: document.querySelector("#modal-title"),
+    modalCategory: document.querySelector("#modal-category"),
+    modalTime: document.querySelector("#modal-time"),
+    modalInterpretation: document.querySelector("#modal-interpretation"),
+    spinAgain: document.querySelector("#spin-again"),
+    shareFate: document.querySelector("#share-fate"),
+    shareFeedback: document.querySelector("#share-feedback"),
+    shareProject: document.querySelector("#share-project"),
+    projectShareFeedback: document.querySelector("#project-share-feedback"),
+    socialSnippets: document.querySelector("#social-snippets"),
+  };
+}
+
+function validateSetup() {
+  const requiredElements = [
+    "wheelSegments",
+    "wheelShell",
+    "spinButton",
+    "wheelStatus",
+    "historyList",
+    "clearHistory",
+    "emptyTemplate",
+    "categoryLegend",
+    "modal",
+    "modalPanel",
+    "closeModal",
+    "modalTitle",
+    "modalCategory",
+    "modalTime",
+    "modalInterpretation",
+    "spinAgain",
+    "shareFate",
+    "shareFeedback",
+    "socialSnippets",
+  ];
+
+  if (!OUTCOMES.length || !Object.keys(CATEGORY_META).length) {
+    throw new Error("Nomad Decision Wheel data failed to load.");
+  }
+
+  const missing = requiredElements.filter((key) => !elements[key]);
+  if (missing.length) {
+    throw new Error(`Nomad Decision Wheel is missing required UI elements: ${missing.join(", ")}`);
+  }
+}
+
+function setWheelStatus(message, tone = "neutral") {
+  if (!elements.wheelStatus) return;
+  elements.wheelStatus.textContent = message;
+  const toneColorMap = {
+    neutral: "#D6C2A1",
+    active: "#14F195",
+    warning: "#FF8A65",
+  };
+  elements.wheelStatus.style.color = toneColorMap[tone] ?? toneColorMap.neutral;
+}
+
+function updateResultTeaser(outcome) {
+  if (!elements.resultTeaser || !outcome) return;
+
+  const category = CATEGORY_META[outcome.category];
+  elements.resultTeaser.classList.remove("hidden");
+  elements.resultTeaserDot.style.background = category.color;
+  elements.resultTeaserDot.style.boxShadow = `0 0 18px ${category.glow}`;
+  elements.resultTeaserCategory.textContent = category.name;
+  elements.resultTeaserLabel.textContent = outcome.label;
+  elements.resultTeaserCopy.textContent = outcome.interpretation;
+}
+
+function hideResultTeaser() {
+  if (!elements.resultTeaser) return;
+  elements.resultTeaser.classList.add("hidden");
 }
 
 function createArcPath(innerRadius, outerRadius, startAngle, endAngle) {
@@ -135,6 +209,8 @@ function renderSocialSnippets() {
 }
 
 function renderWheel() {
+  if (!elements.wheelSegments) return;
+
   const fragment = document.createDocumentFragment();
   const innerRadius = 136;
   const outerRadius = 332;
@@ -306,7 +382,15 @@ function createHistoryEntry(outcome) {
 }
 
 function getRandomOutcomeIndex() {
-  return Math.floor(Math.random() * OUTCOMES.length);
+  if (OUTCOMES.length <= 1) return 0;
+
+  let nextIndex = Math.floor(Math.random() * OUTCOMES.length);
+  let safety = 0;
+  while (OUTCOMES[nextIndex]?.id === state.lastOutcomeId && safety < 12) {
+    nextIndex = Math.floor(Math.random() * OUTCOMES.length);
+    safety += 1;
+  }
+  return nextIndex;
 }
 
 function getTargetRotation(index) {
@@ -321,6 +405,7 @@ function getTargetRotation(index) {
 function setButtonsDisabled(isDisabled) {
   elements.spinButton.disabled = isDisabled;
   elements.spinButton.textContent = isDisabled ? "Spinning" : "Spin";
+  elements.spinButton.classList.toggle("is-spinning", isDisabled);
 }
 
 function resetShareFeedback() {
@@ -392,31 +477,43 @@ function closeModal({ focusSpin = false, restoreFocus = true } = {}) {
 async function handleSpin() {
   if (state.status === "spinning") return;
 
-  closeModal({ restoreFocus: false });
-  state.status = "spinning";
-  setButtonsDisabled(true);
+  try {
+    closeModal({ restoreFocus: false });
+    state.status = "spinning";
+    setButtonsDisabled(true);
+    setWheelStatus("Wheel spinning. Your certainty is being professionally destabilized.", "active");
 
-  const selectedIndex = getRandomOutcomeIndex();
-  const targetRotation = getTargetRotation(selectedIndex);
-  const duration = prefersReducedMotion.matches
-    ? 1200
-    : 4800 + Math.floor(Math.random() * 1500);
+    const selectedIndex = getRandomOutcomeIndex();
+    const targetRotation = getTargetRotation(selectedIndex);
+    const duration = prefersReducedMotion.matches
+      ? 1200
+      : 4800 + Math.floor(Math.random() * 1500);
 
-  await animateRotation(targetRotation, duration);
+    await animateRotation(targetRotation, duration);
 
-  const outcome = OUTCOMES[selectedIndex];
-  const historyEntry = createHistoryEntry(outcome);
-  state.history = [historyEntry, ...state.history].slice(0, HISTORY_LIMIT);
-  persistHistory();
-  renderHistory(historyEntry.id);
+    const outcome = OUTCOMES[selectedIndex];
+    state.lastOutcomeId = outcome.id;
 
-  state.status = "revealed";
-  setButtonsDisabled(false);
+    const historyEntry = createHistoryEntry(outcome);
+    state.history = [historyEntry, ...state.history].slice(0, HISTORY_LIMIT);
+    persistHistory();
+    renderHistory(historyEntry.id);
+    updateResultTeaser(outcome);
 
-  window.clearTimeout(state.modalTimer);
-  state.modalTimer = window.setTimeout(() => {
-    openModal(outcome, historyEntry);
-  }, prefersReducedMotion.matches ? 0 : 280);
+    state.status = "revealed";
+    setButtonsDisabled(false);
+    setWheelStatus(`Fate landed on: ${outcome.label}`, "neutral");
+
+    window.clearTimeout(state.modalTimer);
+    state.modalTimer = window.setTimeout(() => {
+      openModal(outcome, historyEntry);
+    }, prefersReducedMotion.matches ? 0 : 280);
+  } catch (error) {
+    console.error(error);
+    state.status = "idle";
+    setButtonsDisabled(false);
+    setWheelStatus("The wheel glitched. Tap spin again and pretend it was part of the mystique.", "warning");
+  }
 }
 
 async function handleShare() {
@@ -449,6 +546,8 @@ function handleClearHistory() {
   state.history = [];
   persistHistory();
   renderHistory();
+  hideResultTeaser();
+  setWheelStatus("History cleared. The wheel forgives you faster than you forgive yourself.", "neutral");
 }
 
 function handleKeydown(event) {
@@ -459,6 +558,12 @@ function handleKeydown(event) {
 
 function bindEvents() {
   elements.spinButton.addEventListener("click", handleSpin);
+  elements.spinButton.addEventListener("keydown", (event) => {
+    if ((event.key === "Enter" || event.key === " ") && state.status !== "spinning") {
+      event.preventDefault();
+      handleSpin();
+    }
+  });
   elements.spinAgain.addEventListener("click", async () => {
     closeModal({ focusSpin: false });
     await handleSpin();
@@ -487,12 +592,43 @@ function bindEvents() {
 }
 
 function init() {
-  state.history = getStoredHistory();
-  renderLegend();
-  renderSocialSnippets();
-  renderWheel();
-  renderHistory();
-  bindEvents();
+  try {
+    elements = queryElements();
+    validateSetup();
+    state.history = getStoredHistory();
+    state.status = "idle";
+    renderLegend();
+    renderSocialSnippets();
+    renderWheel();
+    renderHistory();
+    bindEvents();
+    setButtonsDisabled(false);
+    const latestHistoryItem = state.history[0];
+    if (latestHistoryItem) {
+      const latestOutcome = OUTCOMES.find((item) => item.id === latestHistoryItem.outcomeId);
+      if (latestOutcome) {
+        updateResultTeaser(latestOutcome);
+        state.lastOutcomeId = latestOutcome.id;
+        setWheelStatus(`Last recorded fate: ${latestOutcome.label}`, "neutral");
+        return;
+      }
+    }
+    setWheelStatus("Wheel armed. Fate is waiting for a volunteer.", "neutral");
+  } catch (error) {
+    console.error(error);
+    elements = queryElements();
+    if (elements.spinButton) {
+      elements.spinButton.disabled = true;
+      elements.spinButton.textContent = "Offline";
+    }
+    if (elements.wheelStatus) {
+      setWheelStatus("Initialization failed. Refresh once; if it still breaks, the ritual stack is compromised.", "warning");
+    }
+  }
 }
 
-init();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init, { once: true });
+} else {
+  init();
+}
