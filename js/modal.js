@@ -1,34 +1,18 @@
 function getFocusableElements(container) {
-  return [...container.querySelectorAll(
-    'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
-  )];
+  return [
+    ...container.querySelectorAll(
+      'button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    ),
+  ];
 }
 
-export function createModalController(elements) {
+function createDialogController({ root, panel, closeButton }) {
   let isOpen = false;
   let lastFocusedElement = null;
-  let handlers = {
-    onClose: () => {},
-    onShare: () => {},
-    onCopyLink: () => {},
-    onSpinAgain: () => {},
-  };
-
-  function render({ outcome, historyEntry, accuracy, categoryMeta }) {
-    const category = categoryMeta[outcome.category];
-    elements.modalTitle.textContent = outcome.label;
-    elements.modalCategory.textContent = category.name;
-    elements.modalCategory.style.color = category.color;
-    elements.modalCategory.style.boxShadow = `0 0 0 1px rgba(255,255,255,0.12), inset 0 0 0 999px rgba(255,255,255,0.02), 0 0 20px ${category.glow}`;
-    elements.modalTime.textContent = historyEntry.displayTime;
-    elements.modalLead.textContent = accuracy.detailLead;
-    elements.modalInterpretation.textContent = outcome.interpretation;
-    elements.modalShareFeedback.textContent = "";
-  }
 
   function trapFocus(event) {
     if (!isOpen || event.key !== "Tab") return;
-    const focusable = getFocusableElements(elements.modalPanel);
+    const focusable = getFocusableElements(panel);
     if (!focusable.length) return;
 
     const first = focusable[0];
@@ -47,51 +31,86 @@ export function createModalController(elements) {
     if (!isOpen) return;
     if (event.key === "Escape") {
       event.preventDefault();
-      close({ restoreFocus: true });
-      handlers.onClose();
+      api.close({ restoreFocus: true });
+      root.dispatchEvent(new CustomEvent("dialogclose"));
+      return;
     }
+
     trapFocus(event);
   }
 
-  function open(payload) {
-    handlers = { ...handlers, ...payload.handlers };
-    render(payload);
-    isOpen = true;
-    lastFocusedElement = document.activeElement;
-    elements.modal.classList.remove("modal-hidden");
-    elements.modal.classList.add("modal-visible");
-    elements.modalPanel.classList.remove("animate-in");
-    void elements.modalPanel.offsetWidth;
-    elements.modalPanel.classList.add("animate-in");
-    document.addEventListener("keydown", handleKeydown);
-
-    requestAnimationFrame(() => {
-      elements.closeModal.focus();
-    });
-  }
-
-  function close({ restoreFocus = true } = {}) {
-    if (!isOpen) return;
-    isOpen = false;
-    elements.modal.classList.remove("modal-visible");
-    elements.modal.classList.add("modal-hidden");
-    document.removeEventListener("keydown", handleKeydown);
-
-    if (restoreFocus && lastFocusedElement instanceof HTMLElement) {
-      lastFocusedElement.focus();
-    }
-  }
-
-  elements.closeModal.addEventListener("click", () => {
-    close({ restoreFocus: true });
-    handlers.onClose();
+  closeButton.addEventListener("click", () => {
+    api.close({ restoreFocus: true });
+    root.dispatchEvent(new CustomEvent("dialogclose"));
   });
 
-  elements.modal.addEventListener("click", (event) => {
-    if (event.target === elements.modal) {
-      close({ restoreFocus: true });
-      handlers.onClose();
+  root.addEventListener("click", (event) => {
+    if (event.target === root) {
+      api.close({ restoreFocus: true });
+      root.dispatchEvent(new CustomEvent("dialogclose"));
     }
+  });
+
+  const api = {
+    open({ initialFocus = closeButton } = {}) {
+      isOpen = true;
+      lastFocusedElement = document.activeElement;
+      root.classList.remove("modal-hidden");
+      root.classList.add("modal-visible");
+      panel.classList.remove("animate-in");
+      void panel.offsetWidth;
+      panel.classList.add("animate-in");
+      document.addEventListener("keydown", handleKeydown);
+
+      requestAnimationFrame(() => {
+        initialFocus.focus();
+      });
+    },
+    close({ restoreFocus = true } = {}) {
+      if (!isOpen) return;
+      isOpen = false;
+      root.classList.remove("modal-visible");
+      root.classList.add("modal-hidden");
+      document.removeEventListener("keydown", handleKeydown);
+
+      if (restoreFocus && lastFocusedElement instanceof HTMLElement) {
+        lastFocusedElement.focus();
+      }
+    },
+    isOpen: () => isOpen,
+  };
+
+  return api;
+}
+
+export function createModalController(elements) {
+  const dialog = createDialogController({
+    root: elements.modal,
+    panel: elements.modalPanel,
+    closeButton: elements.closeModal,
+  });
+
+  let handlers = {
+    onClose: () => {},
+    onShare: () => {},
+    onCopyLink: () => {},
+    onSpinAgain: () => {},
+  };
+
+  function render({ outcome, historyEntry, accuracy, categoryMeta }) {
+    const category = categoryMeta[outcome.category];
+    elements.modalTitle.textContent = outcome.title;
+    elements.modalCategory.textContent = category.name;
+    elements.modalCategory.style.color = category.color;
+    elements.modalCategory.style.boxShadow = `0 0 0 1px rgba(255,255,255,0.12), inset 0 0 0 999px rgba(255,255,255,0.02), 0 0 20px ${category.glow}`;
+    elements.modalTime.textContent = historyEntry.displayTime;
+    elements.modalLead.textContent = accuracy.detailLead;
+    elements.modalInterpretation.textContent = outcome.detail;
+    elements.modalShareFeedback.textContent = "";
+  }
+
+  elements.modal.addEventListener("dialogclose", () => {
+    handlers.onClose();
   });
 
   elements.modalShareButton.addEventListener("click", async () => {
@@ -109,13 +128,33 @@ export function createModalController(elements) {
   });
 
   elements.modalSpinAgainButton.addEventListener("click", async () => {
-    close({ restoreFocus: false });
+    dialog.close({ restoreFocus: false });
     handlers.onSpinAgain();
   });
 
   return {
-    open,
-    close,
-    isOpen: () => isOpen,
+    open(payload) {
+      handlers = { ...handlers, ...payload.handlers };
+      render(payload);
+      dialog.open();
+    },
+    close(options) {
+      dialog.close(options);
+    },
+    isOpen: dialog.isOpen,
   };
+}
+
+export function createBrowserController(elements) {
+  const dialog = createDialogController({
+    root: elements.browserModal,
+    panel: elements.browserPanel,
+    closeButton: elements.closeBrowser,
+  });
+
+  elements.browserModal.addEventListener("dialogclose", () => {
+    dialog.close({ restoreFocus: true });
+  });
+
+  return dialog;
 }

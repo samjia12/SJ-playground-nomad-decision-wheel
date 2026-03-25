@@ -69,9 +69,16 @@ export function renderWheel({
   const fragment = document.createDocumentFragment();
   const outcomeCount = outcomes.length;
   const segmentAngle = 360 / outcomeCount;
-  const innerRadius = 136;
+  const innerRadius = 140;
   const outerRadius = 332;
-  const labelRadius = outcomeCount <= 6 ? 242 : 256;
+  const labelRadius = outcomeCount <= 6 ? 236 : outcomeCount > 36 ? 264 : 252;
+  const labelSize = outcomeCount > 40 ? "11.5" : outcomeCount > 24 ? "12.5" : "13";
+
+  function getDisplayWheelLabel(outcome) {
+    return String(outcome.wheelLabel ?? outcome.shortLabel ?? outcome.title)
+      .toUpperCase()
+      .slice(0, outcomeCount > 40 ? 12 : 15);
+  }
 
   outcomes.forEach((outcome, index) => {
     const category = categoryMeta[outcome.category];
@@ -87,9 +94,9 @@ export function renderWheel({
     segment.setAttribute("fill-opacity", outcome.id === selectedOutcomeId ? "1" : "0.9");
     segment.setAttribute(
       "stroke",
-      outcome.id === selectedOutcomeId ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.18)"
+      outcome.id === selectedOutcomeId ? "rgba(255,255,255,0.78)" : "rgba(255,255,255,0.24)"
     );
-    segment.setAttribute("stroke-width", outcome.id === selectedOutcomeId ? "2.6" : "1.15");
+    segment.setAttribute("stroke-width", outcome.id === selectedOutcomeId ? "3" : "1.35");
 
     const separator = document.createElementNS("http://www.w3.org/2000/svg", "line");
     const separatorStart = polarToCartesian(innerRadius, startAngle);
@@ -112,6 +119,7 @@ export function renderWheel({
     text.setAttribute("text-anchor", "middle");
     text.setAttribute("dominant-baseline", "middle");
     text.setAttribute("fill", outcome.id === selectedOutcomeId ? "rgba(255,255,255,1)" : "rgba(245,247,250,0.92)");
+    text.setAttribute("font-size", labelSize);
 
     const lineOne = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
     lineOne.setAttribute("x", "0");
@@ -121,7 +129,7 @@ export function renderWheel({
     const lineTwo = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
     lineTwo.setAttribute("x", "0");
     lineTwo.setAttribute("dy", "1.25em");
-    lineTwo.textContent = outcome.shortLabel.toUpperCase();
+    lineTwo.textContent = getDisplayWheelLabel(outcome);
 
     text.append(lineOne, lineTwo);
     group.append(segment, separator, text);

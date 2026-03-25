@@ -2,36 +2,41 @@ export const CATEGORY_META = {
   travel: {
     key: "travel",
     name: "Travel Impulse",
+    compactName: "Travel",
     color: "#14F195",
     glow: "rgba(20, 241, 149, 0.28)",
   },
   finance: {
     key: "finance",
     name: "Finance / Degen Satire",
+    compactName: "Finance",
     color: "#627EEA",
     glow: "rgba(98, 126, 234, 0.28)",
   },
   discipline: {
     key: "discipline",
     name: "Discipline / Self-Correction",
+    compactName: "Discipline",
     color: "#D6C2A1",
     glow: "rgba(214, 194, 161, 0.24)",
   },
   social: {
     key: "social",
     name: "Romantic / Social Chaos",
+    compactName: "Social",
     color: "#FF8A65",
     glow: "rgba(255, 138, 101, 0.28)",
   },
   mythology: {
     key: "mythology",
     name: "Absurd Spirituality",
+    compactName: "Spirituality",
     color: "#FFB86B",
     glow: "rgba(255, 184, 107, 0.24)",
   },
 };
 
-export const OUTCOMES = [
+const BASE_OUTCOMES = [
   {
     id: 1,
     category: "travel",
@@ -533,44 +538,531 @@ export const OUTCOMES = [
   },
 ];
 
+const EXTRA_OUTCOMES = [
+  {
+    id: 51,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "NIGHT FERRY",
+    title: "Take the night ferry.",
+    detail:
+      "Book the route with suspiciously romantic logistics. A questionable transit plan is still a plan, and tonight you need narrative momentum more than perfect posture.",
+  },
+  {
+    id: 52,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "LOCAL SIM",
+    title: "Buy the local SIM and stop cosplaying as offline.",
+    detail:
+      "Airport Wi-Fi is not a long-term personality. Five minutes of admin will rescue hours of low-grade chaos.",
+  },
+  {
+    id: 53,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "BORDER COFFEE",
+    title: "Take a bus to the nearest almost-elsewhere.",
+    detail:
+      "You do not need a life overhaul. You need one new border, one strong coffee, and a slightly different sky.",
+  },
+  {
+    id: 54,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "SUNSET CHECKOUT",
+    title: "Leave one day earlier and call it intuition.",
+    detail:
+      "The itinerary has become too reasonable. Pull one thread and let the trip recover a little mythology.",
+  },
+  {
+    id: 55,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "MAPLESS DAY",
+    title: "Spend one afternoon without optimizing the route.",
+    detail:
+      "Your best travel memory is unlikely to come from a spreadsheet-perfect path. Wander with enough structure to get home.",
+  },
+  {
+    id: 56,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "LAUNDRY VISA",
+    title: "Stay long enough to do the laundry properly.",
+    detail:
+      "Not every extension needs to be spiritual. Some are just a clean-shirt decision wearing a mystical hat.",
+  },
+  {
+    id: 57,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "WINDOW SEAT",
+    title: "Pay for the window seat and respect the tiny luxury.",
+    detail:
+      "You have suffered enough budget-airline theater. Buy the view and let one small indulgence rehabilitate the day.",
+  },
+  {
+    id: 58,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "EARLY TRAIN",
+    title: "Take the inconvenient early train.",
+    detail:
+      "Tomorrow gets easier when today accepts one elegant inconvenience. This is logistics disguised as character development.",
+  },
+  {
+    id: 59,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "HOSTEL DIPLOMACY",
+    title: "Talk to strangers before your personality becomes luggage.",
+    detail:
+      "You did not cross time zones to become a silent Wi-Fi ornament. Start one harmless conversation and see what opens.",
+  },
+  {
+    id: 60,
+    category: "travel",
+    categoryLabel: "Travel Impulse",
+    wheelLabel: "MARKET DETOUR",
+    title: "Miss the efficient route on purpose.",
+    detail:
+      "Detours are where a city stops being content and starts becoming memory. Lose ten minutes and gain a better story.",
+  },
+  {
+    id: 61,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "LIMIT LITURGY",
+    title: "Set the order and close the tab.",
+    detail:
+      "Volatility does not need your live commentary. Write the plan once and let the candles perform without supervision.",
+  },
+  {
+    id: 62,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "FEE REGRET",
+    title: "Check what the last transfer actually cost.",
+    detail:
+      "Mysticism is expensive enough without network fees freelancing as jump scares. Read the receipt and regain one square inch of adulthood.",
+  },
+  {
+    id: 63,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "DRY POWDER",
+    title: "Do nothing dramatic and let cash be a personality.",
+    detail:
+      "Not every market mood requires a response. Sometimes the move is to remain solvent and vaguely smug.",
+  },
+  {
+    id: 64,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "TAX FOLDER",
+    title: "Create the tax folder before future-you starts bargaining.",
+    detail:
+      "A boring folder today is a spiritual protection spell for later. Name it clearly and stop outsourcing hope to memory.",
+  },
+  {
+    id: 65,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "REBALANCE",
+    title: "Trim conviction down to an amount that can sleep at night.",
+    detail:
+      "You are allowed to like an asset without marrying it in public. Rebalance before the chart starts writing fan fiction.",
+  },
+  {
+    id: 66,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "RUG CHECK",
+    title: "Read one boring thing before buying one exciting thing.",
+    detail:
+      "The whitepaper may still be theater, but at least make the theater work for its ticket.",
+  },
+  {
+    id: 67,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "OFF-RAMP DAY",
+    title: "Move some gains somewhere unsexy and legal.",
+    detail:
+      "It does not all need to stay in the casino. Take a slice off the table and let reality keep a percentage.",
+  },
+  {
+    id: 68,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "WALLET LABELS",
+    title: "Label your wallets like consequences are real.",
+    detail:
+      "Unnamed addresses are how chaos earns seniority. Add labels now and save future-you from forensic sadness.",
+  },
+  {
+    id: 69,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "CHART EMBARGO",
+    title: "No charts for 12 hours.",
+    detail:
+      "Your nervous system deserves a ceasefire. The market will continue being unstable without your eyelids supervising it.",
+  },
+  {
+    id: 70,
+    category: "finance",
+    categoryLabel: "Finance / Degen Satire",
+    wheelLabel: "CONVICTION NAP",
+    title: "Take a nap before calling it conviction.",
+    detail:
+      "If you still want the trade after actual rest, it may be a thesis. If not, congratulations on avoiding caffeine-based portfolio theory.",
+  },
+  {
+    id: 71,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "TAB FUNERAL",
+    title: "Close the browser graveyard.",
+    detail:
+      "Those 37 tabs are not ambition. They are a haunted house built out of deferred decisions.",
+  },
+  {
+    id: 72,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "LAUNDRY KARMA",
+    title: "Do the laundry and recover a republic of order.",
+    detail:
+      "Clean fabric is not enlightenment, but it does give chaos fewer places to hide.",
+  },
+  {
+    id: 73,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "HYDRATE FIRST",
+    title: "Drink water before designing a new crisis.",
+    detail:
+      "Some emergencies are just dehydration wearing a startup tone of voice.",
+  },
+  {
+    id: 74,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "CALENDAR CLEANSE",
+    title: "Delete the obligations you kept for optics.",
+    detail:
+      "Your schedule should not look like a museum of outdated versions of you.",
+  },
+  {
+    id: 75,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "DESK RESET",
+    title: "Clear one surface and stop rendering background errors.",
+    detail:
+      "You do not need a life reset right now. You need one visible rectangle of peace.",
+  },
+  {
+    id: 76,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "WALK BLOCK",
+    title: "Take one lap around the block.",
+    detail:
+      "Movement is cheaper than existential analysis and often twice as effective.",
+  },
+  {
+    id: 77,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "SCREEN SABBATH",
+    title: "Give the glowing rectangle a short exile.",
+    detail:
+      "Your phone does not need to be the project manager of your bloodstream for the next 30 minutes.",
+  },
+  {
+    id: 78,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "NOTES TRIAGE",
+    title: "Turn the scattered notes into three usable bullets.",
+    detail:
+      "Raw capture is not clarity. Distill the chaos until one action can survive daylight.",
+  },
+  {
+    id: 79,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "MEAL PREP TRUCE",
+    title: "Feed tomorrow before tomorrow becomes dramatic.",
+    detail:
+      "A container in the fridge is a small peace treaty with your future self.",
+  },
+  {
+    id: 80,
+    category: "discipline",
+    categoryLabel: "Discipline / Self-Correction",
+    wheelLabel: "PASSWORD PEACE",
+    title: "Fix one annoying login before it ruins another morning.",
+    detail:
+      "The ritual is not glamorous, but neither is rage-resetting a password while half-awake.",
+  },
+  {
+    id: 81,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "VOICE NOTE",
+    title: "Send the voice note in one take.",
+    detail:
+      "Text has become too legal. Let your actual tone do some of the emotional heavy lifting.",
+  },
+  {
+    id: 82,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "BRUNCH DIPLOMACY",
+    title: "Invite them to a daytime plan with plausible innocence.",
+    detail:
+      "Not every connection requires moonlight and consequences. A daylight ritual is still a ritual.",
+  },
+  {
+    id: 83,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "REPLY TODAY",
+    title: "Reply before your silence gains architecture.",
+    detail:
+      "Delay has turned this into a cathedral of unnecessary meaning. A normal response will do.",
+  },
+  {
+    id: 84,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "ASK DIRECTLY",
+    title: "Trade hints for one sentence with nouns.",
+    detail:
+      "Ambiguity has had a generous season. Let clarity make one brief guest appearance.",
+  },
+  {
+    id: 85,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "CANCEL KINDLY",
+    title: "End the maybe with more grace than avoidance.",
+    detail:
+      "A clean no is kinder than a haunted maybe. Close the loop like a person with functioning daylight.",
+  },
+  {
+    id: 86,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "NICE THING",
+    title: "Say the nice thing without twelve escape hatches.",
+    detail:
+      "A compliment does not need legal disclaimers. Let warmth survive contact with your self-protection.",
+  },
+  {
+    id: 87,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "PHOTO RECEIPT",
+    title: "Send the picture you meant to send weeks ago.",
+    detail:
+      "Sometimes intimacy is just finally pressing send on an ordinary proof of life.",
+  },
+  {
+    id: 88,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "PICK ONE",
+    title: "Stop diffusing your attention across twelve possibilities.",
+    detail:
+      "Choose one person, one thread, one emotional tab. Your nervous system is not a group project.",
+  },
+  {
+    id: 89,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "EXIT TRIANGLE",
+    title: "Choose clarity over gossip.",
+    detail:
+      "Third-party intrigue is cheap electricity. Walk toward the actual person and let the voltage drop.",
+  },
+  {
+    id: 90,
+    category: "social",
+    categoryLabel: "Romantic / Social Chaos",
+    wheelLabel: "PLAN IT",
+    title: "Turn chemistry into a calendar event.",
+    detail:
+      "The vibe has lingered long enough. Give it a time, a place, and a chance to become evidence.",
+  },
+  {
+    id: 91,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "OMEN AUDIT",
+    title: "Reinterpret the coincidence with slightly more discipline.",
+    detail:
+      "Not every sign is a prophecy, but some of them are at least worth a second look and better posture.",
+  },
+  {
+    id: 92,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "SHRINE PLAYLIST",
+    title: "Curate a soundtrack for your temporary destiny.",
+    detail:
+      "You may not control the cosmos, but you do control the next three songs. Start there.",
+  },
+  {
+    id: 93,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "CANDLE LOGISTICS",
+    title: "Light one small ceremonial object.",
+    detail:
+      "Focus is more willing to arrive when the room admits something symbolic is happening.",
+  },
+  {
+    id: 94,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "MOONWATER MEMO",
+    title: "Write the intention down so mysticism has paperwork.",
+    detail:
+      "The universe may be fluid, but your thoughts still benefit from bullet points.",
+  },
+  {
+    id: 95,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "AURA ADMIN",
+    title: "Declutter your room like the energy bill is due.",
+    detail:
+      "Sometimes aura maintenance is just object management with better branding.",
+  },
+  {
+    id: 96,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "PROPHECY STRETCH",
+    title: "Stretch before receiving any cosmic downloads.",
+    detail:
+      "A flexible hamstring is not wisdom, but it does reduce the odds of mistaking stiffness for revelation.",
+  },
+  {
+    id: 97,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "DESERT SIGNAL",
+    title: "Go somewhere quiet enough to hear your better nonsense.",
+    detail:
+      "Silence is often just premium bandwidth for thoughts that were previously buffering.",
+  },
+  {
+    id: 98,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "SATURN BOUNDARY",
+    title: "Say no once and blame the planets if necessary.",
+    detail:
+      "Boundaries count even when introduced with theatrical celestial support.",
+  },
+  {
+    id: 99,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "ORBITAL CLEANSE",
+    title: "Delete one cursed file, one cursed app, and one cursed idea.",
+    detail:
+      "Not all cleansing requires incense. Some of it requires the courage to hit backspace three times.",
+  },
+  {
+    id: 100,
+    category: "mythology",
+    categoryLabel: "Absurd Spirituality",
+    wheelLabel: "STARDUST BUDGET",
+    title: "Make the plan mystical, but keep the spreadsheet open.",
+    detail:
+      "Dream big, but let one tab remain accountable to arithmetic.",
+  },
+];
+
+function buildShareText(title) {
+  return `The Nomad Decision Wheel told me: "${title}" Honestly, fair.`;
+}
+
+function normalizeOutcome(outcome) {
+  const categoryMeta = CATEGORY_META[outcome.category];
+  const categoryLabel = outcome.categoryLabel ?? categoryMeta?.name ?? outcome.category;
+  const wheelLabel = outcome.wheelLabel ?? outcome.shortLabel ?? outcome.title ?? outcome.label;
+  const title = outcome.title ?? outcome.label;
+  const detail = outcome.detail ?? outcome.interpretation;
+
+  return {
+    id: outcome.id,
+    category: outcome.category,
+    categoryLabel,
+    wheelLabel,
+    title,
+    detail,
+    shareText: outcome.shareText ?? buildShareText(title),
+    enabled: outcome.enabled ?? true,
+    tags: outcome.tags ?? [],
+    weight: outcome.weight ?? 1,
+    shortLabel: wheelLabel,
+    label: title,
+    interpretation: detail,
+  };
+}
+
+export const OUTCOME_LIBRARY = [...BASE_OUTCOMES, ...EXTRA_OUTCOMES]
+  .map(normalizeOutcome)
+  .sort((a, b) => a.id - b.id);
+
+export const OUTCOMES = OUTCOME_LIBRARY;
+
 export const ALL_CATEGORY_KEYS = Object.keys(CATEGORY_META);
 
 export const MODE_PRESETS = [
   {
     key: "all-fates",
     name: "All Fates",
-    description: "Every category online. Maximum ambiguity. Premium chaos.",
+    description: "Every category online.",
     categories: ALL_CATEGORY_KEYS,
   },
   {
     key: "travel-spiral",
     name: "Travel Spiral",
-    description: "Airports, visa lore, and relocation as emotional support.",
-    categories: ["travel", "mythology"],
+    description: "Travel Impulse online.",
+    categories: ["travel"],
   },
   {
     key: "degen-exposure",
     name: "Degen Exposure",
-    description: "Financial unseriousness with excellent lighting.",
+    description: "Finance satire online.",
     categories: ["finance"],
   },
   {
     key: "repair-mode",
     name: "Repair Mode",
-    description: "Discipline, body maintenance, and corrective shame.",
+    description: "Discipline online.",
     categories: ["discipline"],
   },
   {
     key: "social-chaos",
     name: "Social Chaos",
-    description: "Romance, texting, vibe shifts, and nightlife negligence.",
+    description: "Social chaos online.",
     categories: ["social"],
   },
   {
     key: "moon-logic",
     name: "Moon Logic",
-    description: "Absurd spirituality, atmospheric travel, and luminous bad ideas.",
-    categories: ["mythology", "travel", "social"],
+    description: "Absurd Spirituality online.",
+    categories: ["mythology"],
   },
 ];
 

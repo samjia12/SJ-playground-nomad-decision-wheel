@@ -1,10 +1,12 @@
 import {
   CATEGORY_META,
-  OUTCOMES,
+  OUTCOME_LIBRARY,
 } from "../data/outcomes.js";
 import {
+  MAX_VISIBLE_SEGMENTS,
+  getActiveWheelPool,
   getCategoryCounts,
-  getActiveOutcomes,
+  getEligibleOutcomes,
   isolateCategory,
   resolveModeSummary,
   restoreAllCategories,
@@ -26,21 +28,26 @@ import {
   renderDetailDeck,
   renderHistory,
   renderModeControls,
+  renderOutcomeBrowser,
   renderOutcomeCount,
   renderSocialSnippets,
   renderTeaser,
+  renderWheelMeta,
   setProjectShareFeedback,
   setSpinState,
   setTeaserFeedback,
   setWheelStatus,
 } from "./dom.js";
-import { createModalController } from "./modal.js";
+import {
+  createBrowserController,
+  createModalController,
+} from "./modal.js";
 import {
   buildDeepLink,
-  copyDeepLink,
   getPlaygroundUrl,
   shareProject,
   shareResult,
+  copyDeepLink,
 } from "./share.js";
 import {
   applyHashState,
@@ -60,10 +67,12 @@ const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)
 const state = createInitialState();
 const elements = getElements();
 const modal = createModalController(elements);
-const categoryCounts = getCategoryCounts(OUTCOMES);
+const browser = createBrowserController(elements);
+const libraryCategoryCounts = getCategoryCounts(OUTCOME_LIBRARY);
+const outcomeLookup = new Map(OUTCOME_LIBRARY.map((outcome) => [outcome.id, outcome]));
 
 function getOutcomeById(outcomeId) {
-  return OUTCOMES.find((outcome) => outcome.id === outcomeId) ?? null;
+  return outcomeLookup.get(outcomeId) ?? null;
 }
 
 function findHistoryEntryByOutcomeId(outcomeId) {
@@ -71,11 +80,13 @@ function findHistoryEntryByOutcomeId(outcomeId) {
 }
 
 function createSyntheticEntry(outcomeId) {
+  const outcome = getOutcomeById(outcomeId);
   return {
     id: `synthetic-${outcomeId}`,
     outcomeId,
-    label: getOutcomeById(outcomeId)?.label ?? "",
-    category: getOutcomeById(outcomeId)?.category ?? "travel",
+    title: outcome?.title ?? "",
+    label: outcome?.title ?? "",
+    category: outcome?.category ?? "travel",
     displayTime: "Shared Link",
     isoTime: new Date().toISOString(),
   };
@@ -85,16 +96,50 @@ function getCurrentAccuracy() {
   return getAccuracyByKey(state.accuracyKey);
 }
 
-function getCurrentActiveOutcomes() {
-  return getActiveOutcomes(OUTCOMES, state.activeCategories);
+function getCurrentDeckState() {
+  const eligibleOutcomes = getEligibleOutcomes(OUTCOME_LIBRARY, state.activeCategories);
+  const activeWheelPool = getActiveWheelPool(eligibleOutcomes, state.deckSeed, {
+    forcedOutcomeId: state.activeOutcomeId,
+    maxSegments: MAX_VISIBLE_SEGMENTS,
+  });
+
+  return {
+    libraryCount: OUTCOME_LIBRARY.length,
+    eligibleOutcomes,
+    activeWheelPool,
+  };
 }
 
-function updateSpinAvailability(activeOutcomes) {
-  if (!activeOutcomes.length) {
+function getBrowserVisibleOutcomes() {
+  const query = state.browserQuery.trim().toLowerCase();
+
+  return OUTCOME_LIBRARY.filter((outcome) => {
+    const matchesCategory =
+      state.browserCategory === "all" || outcome.category === state.browserCategory;
+
+    if (!matchesCategory) {
+      return false;
+    }
+
+    if (!query) {
+      return true;
+    }
+
+    return [
+      outcome.wheelLabel,
+      outcome.title,
+      outcome.detail,
+      outcome.categoryLabel,
+    ].some((value) => value.toLowerCase().includes(query));
+  });
+}
+
+function updateSpinAvailability({ eligibleOutcomes, activeWheelPool }) {
+  if (!eligibleOutcomes.length || !activeWheelPool.length) {
     setSpinState(elements, { disabled: true, label: "Restore" });
     setWheelStatus(
       elements,
-      "No outcomes left in the ritual pool. Restore all filters and try again.",
+      "You filtered the ritual into oblivion. Restore all or switch modes.",
       "warning"
     );
     return;
@@ -113,12 +158,12 @@ function updateSpinAvailability(activeOutcomes) {
   if (state.activeOutcomeId) {
     const activeOutcome = getOutcomeById(state.activeOutcomeId);
     if (activeOutcome) {
-      setWheelStatus(elements, `Last landed on: ${activeOutcome.label}`, "neutral");
+      setWheelStatus(elements, `Last landed on: ${activeOutcome.title}`, "neutral");
       return;
     }
   }
 
-  if (activeOutcomes.length === 1) {
+  if (activeWheelPool.length === 1) {
     setWheelStatus(
       elements,
       "Single-outcome mode armed. Repeats are now part of the ceremony.",
@@ -129,33 +174,47 @@ function updateSpinAvailability(activeOutcomes) {
 
   setWheelStatus(
     elements,
-    "50-segment ritualware, now filtered to your current appetite for consequences.",
+    `${activeWheelPool.length} active segments loaded from ${eligibleOutcomes.length} eligible outcomes.`,
     "neutral"
   );
 }
 
-function renderActiveStateSummary(activeOutcomes) {
+function renderActiveStateSummary({ libraryCount, eligibleOutcomes, activeWheelPool }) {
   const accuracy = getCurrentAccuracy();
   const modeSummary = resolveModeSummary(state);
-  renderModeControls(elements, state.modeKey);
+  renderModeControls(elements, {
+    activeModeKey: state.modeKey,
+    modeSummary,
+  });
   renderAccuracyControls(elements, state.accuracyKey);
-  renderOutcomeCount(elements, activeOutcomes.length, OUTCOMES.length);
+  renderOutcomeCount(elements, {
+    libraryCount,
+    eligibleCount: eligibleOutcomes.length,
+    activeDeckCount: activeWheelPool.length,
+  });
   renderCategoryLegend(elements, {
-    categoryCounts,
+    categoryCounts: libraryCategoryCounts,
     activeCategories: state.activeCategories,
   });
   renderDetailDeck(elements, {
     modeSummary,
     activeCategories: [...state.activeCategories],
     accuracy,
-    activeCount: activeOutcomes.length,
+    libraryCount,
+    eligibleCount: eligibleOutcomes.length,
+    activeDeckCount: activeWheelPool.length,
+  });
+  renderWheelMeta(elements, {
+    libraryCount,
+    eligibleCount: eligibleOutcomes.length,
+    activeDeckCount: activeWheelPool.length,
   });
 }
 
-function renderWheelState(activeOutcomes) {
+function renderWheelState(activeWheelPool) {
   renderWheel({
     container: elements.wheelSegments,
-    outcomes: activeOutcomes,
+    outcomes: activeWheelPool,
     categoryMeta: CATEGORY_META,
     selectedOutcomeId: state.activeOutcomeId,
   });
@@ -174,7 +233,8 @@ function renderTeaserState() {
     return;
   }
 
-  const historyEntry = findHistoryEntryByOutcomeId(outcome.id) ?? createSyntheticEntry(outcome.id);
+  const historyEntry =
+    findHistoryEntryByOutcomeId(outcome.id) ?? createSyntheticEntry(outcome.id);
   renderTeaser(elements, {
     outcome,
     accuracy: getCurrentAccuracy(),
@@ -182,22 +242,36 @@ function renderTeaserState() {
   });
 }
 
-function renderAll({ historyHighlightId = null } = {}) {
-  const activeOutcomes = getCurrentActiveOutcomes();
-  renderActiveStateSummary(activeOutcomes);
-  renderWheelState(activeOutcomes);
-  renderHistory(elements, state.history, { highlightId: historyHighlightId });
-  renderTeaserState();
-  updateSpinAvailability(activeOutcomes);
+function renderBrowserState() {
+  if (elements.browserSearch.value !== state.browserQuery) {
+    elements.browserSearch.value = state.browserQuery;
+  }
+
+  renderOutcomeBrowser(elements, {
+    outcomes: getBrowserVisibleOutcomes(),
+    query: state.browserQuery,
+    activeCategory: state.browserCategory,
+    totalCount: OUTCOME_LIBRARY.length,
+  });
 }
 
-function chooseOutcomeIndex(activeOutcomes) {
-  if (activeOutcomes.length <= 1) return 0;
+function renderAll({ historyHighlightId = null } = {}) {
+  const deckState = getCurrentDeckState();
+  renderActiveStateSummary(deckState);
+  renderWheelState(deckState.activeWheelPool);
+  renderHistory(elements, state.history, { highlightId: historyHighlightId });
+  renderTeaserState();
+  renderBrowserState();
+  updateSpinAvailability(deckState);
+}
 
-  let nextIndex = Math.floor(Math.random() * activeOutcomes.length);
+function chooseOutcomeIndex(activeWheelPool) {
+  if (activeWheelPool.length <= 1) return 0;
+
+  let nextIndex = Math.floor(Math.random() * activeWheelPool.length);
   let safety = 0;
-  while (activeOutcomes[nextIndex]?.id === state.lastOutcomeId && safety < 12) {
-    nextIndex = Math.floor(Math.random() * activeOutcomes.length);
+  while (activeWheelPool[nextIndex]?.id === state.lastOutcomeId && safety < 12) {
+    nextIndex = Math.floor(Math.random() * activeWheelPool.length);
     safety += 1;
   }
   return nextIndex;
@@ -235,23 +309,29 @@ function openOutcomeModal(outcome, historyEntry) {
   });
 }
 
+function openBrowser() {
+  renderBrowserState();
+  browser.open({ initialFocus: elements.browserSearch });
+}
+
 async function handleSpin() {
-  const activeOutcomes = getCurrentActiveOutcomes();
-  if (!activeOutcomes.length || state.status === "spinning") return;
+  const { eligibleOutcomes, activeWheelPool } = getCurrentDeckState();
+  if (!eligibleOutcomes.length || !activeWheelPool.length || state.status === "spinning") return;
 
   const accuracy = getCurrentAccuracy();
-  const selectedIndex = chooseOutcomeIndex(activeOutcomes);
-  const outcome = activeOutcomes[selectedIndex];
+  const selectedIndex = chooseOutcomeIndex(activeWheelPool);
+  const outcome = activeWheelPool[selectedIndex];
   const targetRotation = getTargetRotation({
     currentRotation: state.currentRotation,
     targetIndex: selectedIndex,
-    outcomeCount: activeOutcomes.length,
+    outcomeCount: activeWheelPool.length,
     accuracy,
     reducedMotion: prefersReducedMotion.matches,
   });
 
   state.status = "spinning";
   state.activeOutcomeId = null;
+  state.modalResultId = null;
   renderAll();
   setWheelStatus(
     elements,
@@ -281,7 +361,7 @@ async function handleSpin() {
   syncHash(state);
   renderAll({ historyHighlightId: historyEntry.id });
   flashPointer(elements);
-  setWheelStatus(elements, `${accuracy.teaserLead} ${outcome.label}`, "neutral");
+  setWheelStatus(elements, `${accuracy.teaserLead} ${outcome.title}`, "neutral");
 
   window.setTimeout(() => {
     openOutcomeModal(outcome, historyEntry);
@@ -295,6 +375,9 @@ function applyHistoryEntry(entry) {
   state.activeOutcomeId = entry.outcomeId;
   state.lastOutcomeId = entry.outcomeId;
   state.modalResultId = entry.outcomeId;
+  if (entry.deckSeed) {
+    state.deckSeed = entry.deckSeed;
+  }
   syncHash(state);
   renderAll();
   const outcome = getOutcomeById(entry.outcomeId);
@@ -358,7 +441,9 @@ function bindEvents() {
   elements.teaserOpenButton.addEventListener("click", () => {
     if (!state.activeOutcomeId) return;
     const outcome = getOutcomeById(state.activeOutcomeId);
-    const entry = findHistoryEntryByOutcomeId(state.activeOutcomeId) ?? createSyntheticEntry(state.activeOutcomeId);
+    const entry =
+      findHistoryEntryByOutcomeId(state.activeOutcomeId) ??
+      createSyntheticEntry(state.activeOutcomeId);
     if (outcome) {
       openOutcomeModal(outcome, entry);
     }
@@ -369,11 +454,6 @@ function bindEvents() {
     const outcome = getOutcomeById(state.activeOutcomeId);
     if (!outcome) return;
     const message = await safelyRunShare(() => shareResult({ outcome, state }));
-    setTeaserFeedback(elements, message);
-  });
-
-  elements.teaserCopyLinkButton.addEventListener("click", async () => {
-    const message = await safelyRunShare(() => copyDeepLink(state));
     setTeaserFeedback(elements, message);
   });
 
@@ -399,6 +479,41 @@ function bindEvents() {
     });
   });
 
+  elements.browseButtons.forEach((button) => {
+    button.addEventListener("click", openBrowser);
+  });
+
+  elements.browserSearch.addEventListener("input", (event) => {
+    state.browserQuery = event.target.value;
+    renderBrowserState();
+  });
+
+  elements.browserFilterLegend.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-browser-filter]");
+    if (!trigger) return;
+    state.browserCategory = trigger.dataset.browserFilter;
+    renderBrowserState();
+  });
+
+  elements.browserResults.addEventListener("click", (event) => {
+    const showCategory = event.target.closest("[data-browser-show-category]");
+    const onlyCategory = event.target.closest("[data-browser-only-category]");
+
+    if (showCategory) {
+      state.browserCategory = showCategory.dataset.browserShowCategory;
+      renderBrowserState();
+      return;
+    }
+
+    if (onlyCategory) {
+      isolateCategory(state, onlyCategory.dataset.browserOnlyCategory);
+      browser.close({ restoreFocus: false });
+      syncHash(state);
+      renderAll();
+      elements.spinButton.focus();
+    }
+  });
+
   if (typeof prefersReducedMotion.addEventListener === "function") {
     prefersReducedMotion.addEventListener("change", renderAll);
   } else if (typeof prefersReducedMotion.addListener === "function") {
@@ -406,7 +521,7 @@ function bindEvents() {
   }
 }
 
-function restoreSharedResultFromHash() {
+function restoreSharedResultFromUrl() {
   if (!state.activeOutcomeId) return;
   const outcome = getOutcomeById(state.activeOutcomeId);
   if (!outcome) return;
@@ -418,19 +533,23 @@ function restoreSharedResultFromHash() {
 }
 
 function init() {
-  state.history = loadHistory();
-  renderSocialSnippets(elements, OUTCOMES);
-  const hadResultInHash = applyHashState(state, window.location.hash, OUTCOMES);
+  state.history = loadHistory(OUTCOME_LIBRARY);
+  renderSocialSnippets(elements, OUTCOME_LIBRARY);
+
+  const hasSearchState = applyHashState(state, window.location.search, OUTCOME_LIBRARY);
+  const hasHashState = applyHashState(state, window.location.hash, OUTCOME_LIBRARY);
+  const hadResultInUrl = hasSearchState || hasHashState;
+
   syncHash(state);
   bindEvents();
   renderAll();
 
-  if (!hadResultInHash && state.history[0]) {
+  if (!hadResultInUrl && state.history[0]) {
     state.lastOutcomeId = state.history[0].outcomeId;
   }
 
-  if (hadResultInHash) {
-    restoreSharedResultFromHash();
+  if (hadResultInUrl) {
+    restoreSharedResultFromUrl();
   }
 }
 
