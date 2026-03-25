@@ -3,8 +3,6 @@ import {
   OUTCOME_LIBRARY,
 } from "../data/outcomes.js";
 import {
-  MAX_VISIBLE_SEGMENTS,
-  getActiveWheelPool,
   getCategoryCounts,
   getEligibleOutcomes,
   isolateCategory,
@@ -13,6 +11,10 @@ import {
   setModePreset,
   toggleCategory,
 } from "./filters.js";
+import {
+  MAX_VISIBLE_SEGMENTS,
+  getActiveWheelPool,
+} from "./deck.js";
 import {
   buildHistoryEntry,
   loadHistory,
@@ -28,7 +30,6 @@ import {
   renderDetailDeck,
   renderHistory,
   renderModeControls,
-  renderOutcomeBrowser,
   renderOutcomeCount,
   renderSocialSnippets,
   renderTeaser,
@@ -50,11 +51,14 @@ import {
   copyDeepLink,
 } from "./share.js";
 import {
-  applyHashState,
   createInitialState,
   getAccuracyByKey,
-  syncHash,
 } from "./state.js";
+import { applyHashState, syncHash } from "./url-state.js";
+import {
+  filterOutcomeLibrary,
+  renderOutcomeBrowser,
+} from "./outcome-browser.js";
 import {
   getSpinDuration,
   getTargetRotation,
@@ -108,30 +112,6 @@ function getCurrentDeckState() {
     eligibleOutcomes,
     activeWheelPool,
   };
-}
-
-function getBrowserVisibleOutcomes() {
-  const query = state.browserQuery.trim().toLowerCase();
-
-  return OUTCOME_LIBRARY.filter((outcome) => {
-    const matchesCategory =
-      state.browserCategory === "all" || outcome.category === state.browserCategory;
-
-    if (!matchesCategory) {
-      return false;
-    }
-
-    if (!query) {
-      return true;
-    }
-
-    return [
-      outcome.wheelLabel,
-      outcome.title,
-      outcome.detail,
-      outcome.categoryLabel,
-    ].some((value) => value.toLowerCase().includes(query));
-  });
 }
 
 function updateSpinAvailability({ eligibleOutcomes, activeWheelPool }) {
@@ -248,7 +228,10 @@ function renderBrowserState() {
   }
 
   renderOutcomeBrowser(elements, {
-    outcomes: getBrowserVisibleOutcomes(),
+    outcomes: filterOutcomeLibrary(OUTCOME_LIBRARY, {
+      query: state.browserQuery,
+      activeCategory: state.browserCategory,
+    }),
     query: state.browserQuery,
     activeCategory: state.browserCategory,
     totalCount: OUTCOME_LIBRARY.length,
@@ -290,6 +273,10 @@ async function safelyRunShare(action) {
 }
 
 function openOutcomeModal(outcome, historyEntry) {
+  if (browser.isOpen()) {
+    browser.close({ restoreFocus: false });
+  }
+
   modal.open({
     outcome,
     historyEntry,
@@ -310,6 +297,10 @@ function openOutcomeModal(outcome, historyEntry) {
 }
 
 function openBrowser() {
+  if (modal.isOpen()) {
+    modal.close({ restoreFocus: false });
+  }
+
   renderBrowserState();
   browser.open({ initialFocus: elements.browserSearch });
 }

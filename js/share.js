@@ -2,7 +2,8 @@ import {
   PLAYGROUND_URL,
   PROJECT_SHARE_BLURB,
 } from "../data/outcomes.js";
-import { buildHash, getAccuracyByKey } from "./state.js";
+import { getAccuracyByKey } from "./state.js";
+import { buildHash } from "./url-state.js";
 
 async function copyText(text) {
   if (navigator.clipboard?.writeText) {
@@ -27,6 +28,7 @@ export function buildDeepLink(state, resultId = state.activeOutcomeId) {
     accuracyKey: state.accuracyKey,
     activeCategories: state.activeCategories,
     resultId,
+    deckSeed: state.deckSeed,
   });
 
   return `${window.location.origin}${window.location.pathname}${hash}`;

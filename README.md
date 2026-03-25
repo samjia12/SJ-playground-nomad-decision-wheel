@@ -1,61 +1,99 @@
-# Nomad Decision Wheel V3
+# Nomad Decision Wheel
 
-Nomad Decision Wheel is a static ritual-grade fate machine for digital nomads, overthinkers, degen optimists, and other beautifully unserious adults. This version keeps the dark cyber-luxury tone, but makes the product clearer, more scalable, more replayable, and easier to operate from pure browser state.
+Nomad Decision Wheel is a static, ritual-grade fate machine for digital nomads, overthinkers, degen optimists, and other beautifully unserious adults. It is entertainment-first, browser-only, and intentionally theatrical.
+
+The live UX is the product source of truth. This repo is structured to match that behavior directly: no backend, no auth, no CMS, no framework-heavy rewrite, and no hidden server state.
 
 ## Design Principles
 
 - Entertainment first
 - Ritual first
 - Shareability first
-- No backend, no accounts, no fake seriousness
+- Browser state over backend state
+- Accessibility and reduced motion are not optional
 
-## What Changed In V3
+## What The App Actually Does
 
-- The outcome library now scales beyond the visible wheel
-- Counts are fully data-driven:
-  - `Library` = full archive size
-  - `Eligible` = current mode + category matches
-  - `Active deck` = outcomes currently loaded onto the wheel
-- The wheel now renders at most `MAX_VISIBLE_SEGMENTS = 50`
-- When eligible outcomes exceed the visible cap, a seeded deck is generated so the visible wheel stays readable and shareable
-- Result deep links now preserve:
-  - mode
-  - accuracy
-  - active categories
-  - deck seed
-  - result id
-- History is versioned and migrated in localStorage
-- The top of the page now has clearer CTA hierarchy:
-  - `Spin Now`
-  - `Browse Outcomes`
-- Added an `Outcome Browser` dialog with search and category browsing
-- Lower-page narrative copy now uses progressive disclosure instead of one long uninterrupted landing block
+- Renders a large SVG decision wheel
+- Supports mode presets, category filters, and accuracy framing
+- Tracks three counts separately:
+  - `Library`
+  - `Eligible`
+  - `Active deck`
+- Caps the visible wheel at `50` segments
+- Uses a deterministic seeded shuffle when the eligible archive exceeds the visible wheel
+- Stores history locally with schema migration and deduplication
+- Supports shareable deep links that restore the ritual state
+- Includes an outcome browser with search and category filtering
 
 ## Project Structure
 
 ```text
 .
+├── favicon.svg
+├── social-card.svg
 ├── index.html
-├── styles.css
+├── styles
+│   ├── app.css
+│   └── tokens.css
 ├── data
 │   └── outcomes.js
 ├── js
+│   ├── deck.js
 │   ├── dom.js
 │   ├── filters.js
 │   ├── history.js
 │   ├── main.js
 │   ├── modal.js
+│   ├── outcome-browser.js
 │   ├── share.js
 │   ├── state.js
+│   ├── url-state.js
 │   └── wheel.js
 └── README.md
 ```
 
+## Module Responsibilities
+
+- [`data/outcomes.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/data/outcomes.js)
+  Holds the normalized outcome archive, category metadata, mode presets, accuracy levels, and project-level share copy.
+
+- [`js/state.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/state.js)
+  Holds the app state shape, deck seed helpers, mode lookup helpers, and stable category serialization helpers.
+
+- [`js/filters.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/filters.js)
+  Handles category inclusion, mode preset application, restore-all behavior, and mode summary resolution.
+
+- [`js/deck.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/deck.js)
+  Owns deterministic active deck generation and the `MAX_VISIBLE_SEGMENTS = 50` rule.
+
+- [`js/wheel.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/wheel.js)
+  Renders the SVG wheel and controls spin targeting, timing, and easing.
+
+- [`js/modal.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/modal.js)
+  Owns dialog open/close behavior, focus trapping, focus return, and Escape handling.
+
+- [`js/outcome-browser.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/outcome-browser.js)
+  Handles outcome browser filtering and rendering without allowing forced-result cheating.
+
+- [`js/url-state.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/url-state.js)
+  Serializes and restores shareable ritual state from the URL.
+
+- [`js/history.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/history.js)
+  Handles localStorage persistence, migration, deduplication, and the 20-entry cap.
+
+- [`js/share.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/share.js)
+  Owns Web Share API usage, clipboard fallback, and recoverable deep-link generation.
+
+- [`js/dom.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/dom.js)
+  Contains reusable DOM lookup and rendering helpers for the rest of the app.
+
+- [`js/main.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/main.js)
+  Wires the entire product together.
+
 ## Data Model
 
-All outcomes are normalized from one shared archive in [`data/outcomes.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/data/outcomes.js).
-
-Each outcome resolves to a stable shape:
+Every outcome is normalized to a stable shape:
 
 - `id`
 - `category`
@@ -65,78 +103,84 @@ Each outcome resolves to a stable shape:
 - `detail`
 - `shareText`
 
-Compatibility aliases are also preserved for older UI code:
+Backward-compatibility aliases are preserved for older UI code:
 
 - `shortLabel`
 - `label`
 - `interpretation`
 
-## Modes
+The archive currently contains `100` outcomes total, with `20` outcomes in each category.
 
-- `All Fates` keeps every category live
-- `Travel Spiral` maps to `Travel Impulse`
-- `Degen Exposure` maps to `Finance / Degen Satire`
-- `Repair Mode` maps to `Discipline / Self-Correction`
-- `Social Chaos` maps to `Romantic / Social Chaos`
-- `Moon Logic` maps to `Absurd Spirituality`
+## Deck Model
 
-## Wheel Logic
+The product intentionally distinguishes four layers:
 
-- `outcomeLibrary` is the full archive
-- `eligibleOutcomes` are filtered by active mode + active categories
-- `activeWheelPool` is what the wheel actually renders
-- `currentResult` always comes from the active wheel pool
-- If `eligibleOutcomes.length <= 50`, the wheel renders every eligible outcome
-- If `eligibleOutcomes.length > 50`, a seeded shuffle selects the visible deck
+- `outcomeLibrary`
+  The full archive.
 
-This keeps the wheel readable even after the library grows.
+- `eligibleOutcomes`
+  Outcomes that match the active mode and active category set.
 
-## Categories
+- `activeWheelPool`
+  The deterministic visible deck currently loaded onto the wheel.
 
-- Five categories remain intact: travel, finance, discipline, social, mythology
-- Each category now has 20 outcomes
-- Category cards act as real legend + filter controls
-- Click a category to toggle it
-- Click `Only` to isolate it
-- Click `Restore All` to recover from over-filtering
+- `currentResult`
+  The selected outcome for the latest resolved spin.
+
+Rules:
+
+- If `eligibleOutcomes.length <= 50`, the wheel shows every eligible outcome.
+- If `eligibleOutcomes.length > 50`, the wheel shows a seeded subset.
+- Result selection always comes from the visible active deck.
+
+## Deep Link Behavior
+
+The app restores these values from the URL:
+
+- `mode`
+- `accuracy`
+- `categories`
+- `deck`
+- `result`
+
+Older result links are still tolerated through stable `id` restoration plus a legacy index fallback.
 
 ## Outcome Browser
 
-- Open with `Browse Outcomes`
 - Search by wheel label, title, detail, or category label
-- Filter inside the browser by category
-- Use `Only This Category` to apply that category back to the main wheel
-- Keeps the ritual intact by not allowing forced results
+- Filter the browser by category
+- Apply `Only This Category` back to the live wheel state
+- No direct “force this result” cheat path
 
 ## History
 
-- Stored in localStorage only
-- Maximum of 20 entries
-- Versioned payload with migration support
-- Compatible with older entries that stored only basic result metadata
-- Clicking a history item reopens that result detail and restores its mode/filter context when possible
-- Repeated outcomes are deduplicated so the latest occurrence wins
+- localStorage only
+- Versioned payload
+- Migration-safe
+- Deduplicated by latest occurrence
+- Hard-capped at 20 entries
+- Clicking an entry reopens the same ritual context when enough state is available
 
-## Sharing And URL State
+## Accessibility
 
-- Result sharing uses the Web Share API when supported
-- Clipboard fallback copies share text plus a recoverable link
-- Deep links live in the URL hash
-- The URL can restore:
-  - mode
-  - active categories
-  - accuracy
-  - deck seed
-  - selected result
-- Older result links are still handled through stable outcome ids and a small legacy index fallback
+- Skip link
+- `aria-live` wheel status
+- Dialog semantics
+- Focus trap and focus return
+- Escape to close dialogs
+- Reduced-motion support
+- Keyboard-triggerable spin button
 
-## Accessibility Notes
+## Metadata And Sharing
 
-- Native `<button>` controls are used for key actions
-- Result modal and outcome browser are both keyboard-closable with `Escape`
-- Focus returns to a sensible trigger after closing dialogs
-- The wheel status uses `aria-live`
-- `prefers-reduced-motion` shortens or effectively disables non-essential motion
+The static HTML includes:
+
+- meta description
+- canonical URL
+- Open Graph tags
+- Twitter card tags
+- SVG favicon
+- static share artwork via [`social-card.svg`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/social-card.svg)
 
 ## Local Run
 
@@ -150,10 +194,9 @@ Then open [http://localhost:8000](http://localhost:8000).
 
 ## Deployment
 
-- Pure front-end
-- No backend or database
+- Pure client-side
 - GitHub Pages friendly
-- Works with direct branch publishing
+- No backend or database required
 
 Live URL:
 
@@ -161,7 +204,6 @@ Live URL:
 
 ## Notes
 
-- The archive now contains 100 outcomes total
-- The wheel still only surfaces a readable active deck at a time
-- The project intentionally stays unserious in tone, even when the code becomes more maintainable
-- If the wheel sounds wise, that is between you and your pattern recognition
+- This is not a productivity dashboard.
+- The ritual-grade copy tone is intentionally protected.
+- If the wheel sounds wise, that is between you and your pattern recognition.

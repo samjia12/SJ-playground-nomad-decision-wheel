@@ -1,17 +1,4 @@
-:root {
-  color-scheme: dark;
-  --bg-primary: #0b0f14;
-  --bg-secondary: #111827;
-  --panel-glass: rgba(255, 255, 255, 0.08);
-  --panel-border: rgba(255, 255, 255, 0.14);
-  --text-primary: #f5f7fa;
-  --text-secondary: #bbc4d3;
-  --accent-green: #14f195;
-  --accent-blue: #627eea;
-  --accent-sand: #d6c2a1;
-  --accent-coral: #ff8a65;
-  --accent-amber: #ffb86b;
-}
+@import "./tokens.css";
 
 * {
   box-sizing: border-box;
