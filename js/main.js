@@ -69,6 +69,7 @@ import {
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 const state = createInitialState();
+state.historyExpanded = false;
 const elements = getElements();
 const modal = createModalController(elements);
 const browser = createBrowserController(elements);
@@ -183,6 +184,8 @@ function renderActiveStateSummary({ libraryCount, eligibleOutcomes, activeWheelP
     libraryCount,
     eligibleCount: eligibleOutcomes.length,
     activeDeckCount: activeWheelPool.length,
+    deckSeed: state.deckSeed,
+    activeWheelPool,
   });
   renderWheelMeta(elements, {
     libraryCount,
@@ -242,9 +245,16 @@ function renderAll({ historyHighlightId = null } = {}) {
   const deckState = getCurrentDeckState();
   renderActiveStateSummary(deckState);
   renderWheelState(deckState.activeWheelPool);
-  renderHistory(elements, state.history, { highlightId: historyHighlightId });
+  renderHistory(elements, state.history, {
+    highlightId: historyHighlightId,
+    expanded: state.historyExpanded,
+  });
   renderTeaserState();
   renderBrowserState();
+  if (elements.projectShareUrl) {
+    const currentUrl = new URL(buildDeepLink(state));
+    elements.projectShareUrl.textContent = `${currentUrl.host}${currentUrl.pathname}${currentUrl.hash}`;
+  }
   updateSpinAvailability(deckState);
 }
 
@@ -429,6 +439,8 @@ function bindEvents() {
     }
   });
 
+  elements.teaserSpinButton.addEventListener("click", handleSpin);
+
   elements.teaserOpenButton.addEventListener("click", () => {
     if (!state.activeOutcomeId) return;
     const outcome = getOutcomeById(state.activeOutcomeId);
@@ -448,6 +460,12 @@ function bindEvents() {
     setTeaserFeedback(elements, message);
   });
 
+  elements.teaserCopyButton.addEventListener("click", async () => {
+    if (!state.activeOutcomeId) return;
+    const message = await safelyRunShare(() => copyDeepLink(state, state.activeOutcomeId));
+    setTeaserFeedback(elements, message);
+  });
+
   elements.historyList.addEventListener("click", (event) => {
     const trigger = event.target.closest("[data-history-id]");
     if (!trigger) return;
@@ -462,6 +480,13 @@ function bindEvents() {
     saveHistory(state.history);
     renderAll();
   });
+
+  if (elements.historyToggleButton) {
+    elements.historyToggleButton.addEventListener("click", () => {
+      state.historyExpanded = !state.historyExpanded;
+      renderAll();
+    });
+  }
 
   elements.projectShareButtons.forEach((button) => {
     button.addEventListener("click", async () => {
@@ -549,8 +574,3 @@ document.addEventListener("DOMContentLoaded", init, { once: true });
 document.querySelectorAll("[data-playground-link]").forEach((link) => {
   link.href = getPlaygroundUrl();
 });
-
-const projectShareUrl = document.querySelector("#project-share-url");
-if (projectShareUrl) {
-  projectShareUrl.textContent = new URL(buildDeepLink(state)).hostname;
-}

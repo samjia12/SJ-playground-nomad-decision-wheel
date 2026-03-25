@@ -28,12 +28,16 @@ export function getElements() {
     teaserCategory: document.querySelector("#teaser-category"),
     teaserLabel: document.querySelector("#teaser-label"),
     teaserCopy: document.querySelector("#teaser-copy"),
+    teaserSpinButton: document.querySelector("#teaser-spin"),
     teaserOpenButton: document.querySelector("#teaser-open"),
     teaserShareButton: document.querySelector("#teaser-share"),
+    teaserCopyButton: document.querySelector("#teaser-copy-link"),
     teaserFeedback: document.querySelector("#teaser-feedback"),
     restoreFiltersButton: document.querySelector("#restore-filters"),
     categoryLegend: document.querySelector("#category-legend"),
+    historyPanel: document.querySelector("#history-panel"),
     historyList: document.querySelector("#history-list"),
+    historyToggleButton: document.querySelector("#history-toggle"),
     clearHistoryButton: document.querySelector("#clear-history"),
     detailModeName: document.querySelector("#detail-mode-name"),
     detailModeDescription: document.querySelector("#detail-mode-description"),
@@ -41,8 +45,12 @@ export function getElements() {
     detailAccuracySummary: document.querySelector("#detail-accuracy-summary"),
     detailPoolCount: document.querySelector("#detail-pool-count"),
     detailDeckSummary: document.querySelector("#detail-deck-summary"),
+    detailDeckSeed: document.querySelector("#detail-deck-seed"),
+    detailActivePreview: document.querySelector("#detail-active-preview"),
+    detailActiveList: document.querySelector("#detail-active-list"),
     projectShareButtons: [...document.querySelectorAll("[data-project-share]")],
     projectShareFeedback: document.querySelector("#project-share-feedback"),
+    projectShareUrl: document.querySelector("#project-share-url"),
     socialSnippets: document.querySelector("#social-snippets"),
     modal: document.querySelector("#result-modal"),
     modalPanel: document.querySelector("#modal-panel"),
@@ -69,9 +77,9 @@ export function getElements() {
 
 export function setWheelStatus(elements, message, tone = "neutral") {
   const toneColors = {
-    neutral: "#D6C2A1",
-    active: "#14F195",
-    warning: "#FF8A65",
+    neutral: "#F4D07A",
+    active: "#C4B5FD",
+    warning: "#FB8B8B",
   };
 
   elements.wheelStatus.textContent = message;
@@ -105,11 +113,11 @@ export function renderModeControls(elements, { activeModeKey, modeSummary }) {
 
   if (activeModeKey === CUSTOM_MODE_KEY) {
     elements.modeDescription.textContent =
-      `Manual Drift active. Canon lanes: ${modeSummary.mappingLabel}.`;
+      `Manual Drift active. Maps to ${modeSummary.mappingLabel}.`;
     return;
   }
 
-  elements.modeDescription.textContent = `${modeSummary.description} Canon lanes: ${modeSummary.mappingLabel}.`;
+  elements.modeDescription.textContent = `${modeSummary.description} Maps to ${modeSummary.mappingLabel}.`;
 }
 
 export function renderAccuracyControls(elements, activeAccuracyKey) {
@@ -137,7 +145,7 @@ export function renderOutcomeCount(
   elements.eligibleOutcomeCount.textContent = String(eligibleCount);
   elements.activeDeckCount.textContent = String(activeDeckCount);
   elements.outcomeStatusCaption.textContent =
-    "Library is the archive. Active deck is what the wheel is currently spinning.";
+    "Library is the full archive. Eligible matches your current ritual. Active deck is what this wheel can actually land on.";
 }
 
 export function renderCategoryLegend(
@@ -148,60 +156,70 @@ export function renderCategoryLegend(
     .map((category) => {
       const isActive = activeCategories.has(category.key);
       return `
-        <article class="filter-card rounded-[24px] p-4" data-active="${isActive}">
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex min-w-0 items-start gap-3">
-              <span class="mt-1 h-3 w-3 rounded-full" style="background:${category.color}; box-shadow: 0 0 18px ${category.glow};"></span>
-              <div class="min-w-0">
-                <p class="text-sm font-semibold text-white">${category.name}</p>
-                <p class="mt-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">${categoryCounts[category.key]} in library</p>
-              </div>
-            </div>
-            <span class="filter-state text-[11px] uppercase tracking-[0.18em] ${isActive ? "text-accent-sand" : "text-slate-400"}">
-              ${isActive ? "Live" : "Muted"}
-            </span>
-          </div>
-          <div class="mt-4 flex flex-wrap gap-2">
-            <button
-              type="button"
-              class="control-pill rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em]"
-              data-category-toggle="${category.key}"
-              aria-pressed="${isActive}"
-            >
-              ${isActive ? "Included" : "Muted"}
-            </button>
-            <button
-              type="button"
-              class="ghost-button rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-white"
-              data-category-only="${category.key}"
-            >
-              Only
-            </button>
-          </div>
-        </article>
+        <div class="category-filter" data-active="${isActive}">
+          <button
+            type="button"
+            class="filter-chip"
+            data-category-toggle="${category.key}"
+            aria-pressed="${isActive}"
+            aria-label="${isActive ? "Mute" : "Include"} ${category.name}"
+          >
+            <span class="filter-dot" style="background:${category.color}; box-shadow: 0 0 18px ${category.glow};"></span>
+            <span class="filter-label">${category.name}</span>
+            <span class="filter-count">${categoryCounts[category.key]}</span>
+            <span class="filter-state">${isActive ? "Included" : "Muted"}</span>
+          </button>
+          <button
+            type="button"
+            class="filter-mini"
+            data-category-only="${category.key}"
+            aria-label="Only ${category.name}"
+          >
+            Only
+          </button>
+        </div>
       `;
     })
     .join("");
 }
 
-export function renderHistory(elements, historyEntries, { highlightId = null } = {}) {
+export function renderHistory(
+  elements,
+  historyEntries,
+  { highlightId = null, expanded = false, previewCount = 5 } = {}
+) {
+  const visibleEntries = expanded ? historyEntries : historyEntries.slice(0, previewCount);
+
+  if (elements.historyPanel) {
+    elements.historyPanel.dataset.expanded = String(expanded);
+  }
+
+  if (elements.historyToggleButton) {
+    const needsToggle = historyEntries.length > previewCount;
+    elements.historyToggleButton.hidden = !needsToggle;
+    elements.historyToggleButton.textContent = expanded
+      ? "Show Less"
+      : `View All ${historyEntries.length}`;
+    elements.historyToggleButton.setAttribute("aria-expanded", String(expanded));
+  }
+
   if (!historyEntries.length) {
     elements.historyList.innerHTML = `
-      <div class="history-empty rounded-[22px] px-4 py-5 text-sm leading-6 text-slate-300">
+      <div class="history-empty">
         No spins yet. The wheel is respectfully waiting to ruin your certainty.
       </div>
     `;
     return;
   }
 
-  elements.historyList.innerHTML = historyEntries
+  elements.historyList.innerHTML = visibleEntries
     .map((entry) => {
       const category = CATEGORY_META[entry.category];
       const title = entry.title ?? entry.label;
       return `
         <button
           type="button"
-          class="history-item ${entry.id === highlightId ? "is-new" : ""} rounded-[22px] px-4 py-4 text-left"
+          class="history-item ${entry.id === highlightId ? "is-new" : ""}"
           data-history-id="${entry.id}"
           aria-label="Reopen ${title} from ${entry.displayTime}"
           title="${title}"
@@ -224,17 +242,29 @@ export function renderHistory(elements, historyEntries, { highlightId = null } =
 
 export function renderTeaser(elements, { outcome, accuracy, displayTime }) {
   const category = CATEGORY_META[outcome.category];
-  elements.teaser.classList.remove("hidden");
+  elements.teaser.dataset.state = "live";
   elements.teaserLead.textContent = accuracy.teaserLead;
   elements.teaserCategory.textContent = `${category.name} • ${displayTime}`;
   elements.teaserCategory.style.color = category.color;
   elements.teaserLabel.textContent = outcome.title;
   elements.teaserCopy.textContent = outcome.detail;
   elements.teaserFeedback.textContent = "";
+  elements.teaserOpenButton.disabled = false;
+  elements.teaserShareButton.disabled = false;
+  elements.teaserCopyButton.disabled = false;
 }
 
 export function hideTeaser(elements) {
-  elements.teaser.classList.add("hidden");
+  elements.teaser.dataset.state = "empty";
+  elements.teaserLead.textContent = "Current omen";
+  elements.teaserCategory.textContent = "Awaiting spin";
+  elements.teaserCategory.style.color = "";
+  elements.teaserLabel.textContent = "Spin the wheel to extract a premium-quality bad idea.";
+  elements.teaserCopy.textContent =
+    "The archive is live, the pointer is judgmental, and the current deck is what this wheel can actually land on right now.";
+  elements.teaserOpenButton.disabled = true;
+  elements.teaserShareButton.disabled = true;
+  elements.teaserCopyButton.disabled = true;
   elements.teaserFeedback.textContent = "";
 }
 
@@ -248,21 +278,49 @@ export function setProjectShareFeedback(elements, message) {
 
 export function renderDetailDeck(
   elements,
-  { modeSummary, activeCategories, accuracy, libraryCount, eligibleCount, activeDeckCount }
+  {
+    modeSummary,
+    activeCategories,
+    accuracy,
+    libraryCount,
+    eligibleCount,
+    activeDeckCount,
+    deckSeed,
+    activeWheelPool,
+  }
 ) {
   elements.detailModeName.textContent = modeSummary.name;
-  elements.detailModeDescription.textContent = modeSummary.description;
+  elements.detailModeDescription.textContent = `Maps to ${modeSummary.mappingLabel}.`;
   elements.detailCategorySummary.textContent =
     activeCategories.length
       ? activeCategories.map((categoryKey) => CATEGORY_META[categoryKey].name).join(" • ")
       : "No active categories. The wheel is currently fasting.";
   elements.detailAccuracySummary.textContent = `${accuracy.shortLabel} • ${accuracy.statusLabel}`;
-  elements.detailPoolCount.textContent = `${libraryCount} library • ${eligibleCount} eligible`;
-  elements.detailDeckSummary.textContent = `${activeDeckCount} active segments currently loaded onto the wheel.`;
+  elements.detailPoolCount.textContent = `${libraryCount} library • ${eligibleCount} eligible • ${activeDeckCount} active`;
+  elements.detailDeckSummary.textContent =
+    "The wheel never renders more than the current active deck. What you see on the stage is what can actually land.";
+  elements.detailDeckSeed.textContent = deckSeed;
+  elements.detailActivePreview.innerHTML = activeWheelPool
+    .slice(0, 6)
+    .map(
+      (outcome) => `
+        <span class="deck-chip">${String(
+          outcome.wheelLabel ?? outcome.shortLabel ?? outcome.title
+        ).toUpperCase()}</span>
+      `
+    )
+    .join("");
+  elements.detailActiveList.innerHTML = activeWheelPool
+    .map(
+      (outcome) => `
+        <span class="deck-chip deck-chip--full">${String(outcome.id).padStart(2, "0")} · ${outcome.title}</span>
+      `
+    )
+    .join("");
 }
 
 export function renderWheelMeta(elements, { libraryCount, eligibleCount, activeDeckCount }) {
-  elements.wheelDeckBadge.textContent = `${activeDeckCount} active segments`;
+  elements.wheelDeckBadge.textContent = `${activeDeckCount} visible segments`;
   elements.wheelDeckMeta.textContent = `${eligibleCount} eligible from ${libraryCount} in the archive`;
 }
 

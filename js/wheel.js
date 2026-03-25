@@ -50,7 +50,7 @@ export function renderWheel({
 
     const emptyInner = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     emptyInner.setAttribute("r", "130");
-    emptyInner.setAttribute("fill", "rgba(11,15,20,0.85)");
+    emptyInner.setAttribute("fill", "rgba(11,10,17,0.9)");
     emptyInner.setAttribute("stroke", "rgba(255,255,255,0.12)");
     emptyInner.setAttribute("stroke-width", "3");
 
@@ -86,17 +86,17 @@ export function renderWheel({
     const endAngle = startAngle - segmentAngle;
     const centerAngle = startAngle - segmentAngle / 2;
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-    const fill = adjustColor(category.color, index % 2 === 0 ? 0 : -18);
+    const fill = adjustColor(category.color, index % 2 === 0 ? -6 : -22);
 
     const segment = document.createElementNS("http://www.w3.org/2000/svg", "path");
     segment.setAttribute("d", createArcPath(innerRadius, outerRadius, startAngle, endAngle));
     segment.setAttribute("fill", fill);
-    segment.setAttribute("fill-opacity", outcome.id === selectedOutcomeId ? "1" : "0.9");
+    segment.setAttribute("fill-opacity", outcome.id === selectedOutcomeId ? "1" : "0.84");
     segment.setAttribute(
       "stroke",
-      outcome.id === selectedOutcomeId ? "rgba(255,255,255,0.78)" : "rgba(255,255,255,0.24)"
+      outcome.id === selectedOutcomeId ? "rgba(244,208,122,0.94)" : "rgba(255,255,255,0.28)"
     );
-    segment.setAttribute("stroke-width", outcome.id === selectedOutcomeId ? "3" : "1.35");
+    segment.setAttribute("stroke-width", outcome.id === selectedOutcomeId ? "3.5" : "1.5");
 
     const separator = document.createElementNS("http://www.w3.org/2000/svg", "line");
     const separatorStart = polarToCartesian(innerRadius, startAngle);
@@ -105,8 +105,8 @@ export function renderWheel({
     separator.setAttribute("y1", separatorStart.y.toFixed(3));
     separator.setAttribute("x2", separatorEnd.x.toFixed(3));
     separator.setAttribute("y2", separatorEnd.y.toFixed(3));
-    separator.setAttribute("stroke", "rgba(255,255,255,0.2)");
-    separator.setAttribute("stroke-width", "1");
+    separator.setAttribute("stroke", "rgba(255,255,255,0.18)");
+    separator.setAttribute("stroke-width", "1.1");
 
     const labelPosition = polarToCartesian(labelRadius, centerAngle);
     const uprightAngle = centerAngle < -90 && centerAngle > -270 ? centerAngle + 180 : centerAngle;
@@ -118,7 +118,10 @@ export function renderWheel({
     );
     text.setAttribute("text-anchor", "middle");
     text.setAttribute("dominant-baseline", "middle");
-    text.setAttribute("fill", outcome.id === selectedOutcomeId ? "rgba(255,255,255,1)" : "rgba(245,247,250,0.92)");
+    text.setAttribute(
+      "fill",
+      outcome.id === selectedOutcomeId ? "rgba(255,248,233,1)" : "rgba(245,242,255,0.94)"
+    );
     text.setAttribute("font-size", labelSize);
 
     const lineOne = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
@@ -144,8 +147,8 @@ export function renderWheel({
   finalSeparator.setAttribute("y1", finalStart.y.toFixed(3));
   finalSeparator.setAttribute("x2", finalEnd.x.toFixed(3));
   finalSeparator.setAttribute("y2", finalEnd.y.toFixed(3));
-  finalSeparator.setAttribute("stroke", "rgba(255,255,255,0.22)");
-  finalSeparator.setAttribute("stroke-width", "1");
+  finalSeparator.setAttribute("stroke", "rgba(255,255,255,0.18)");
+  finalSeparator.setAttribute("stroke-width", "1.1");
 
   container.append(fragment, finalSeparator);
 }

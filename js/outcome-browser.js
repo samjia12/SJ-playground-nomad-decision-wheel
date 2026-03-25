@@ -31,22 +31,22 @@ export function renderOutcomeBrowser(
   elements,
   { outcomes, query, activeCategory, totalCount }
 ) {
-  elements.browserCount.textContent = `${outcomes.length} of ${totalCount} visible`;
+  elements.browserCount.textContent = `${outcomes.length} of ${totalCount}`;
 
   elements.browserFilterLegend.innerHTML = `
-    <button
-      type="button"
-      class="control-pill rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em]"
-      data-browser-filter="all"
-      aria-pressed="${activeCategory === "all"}"
-    >
+        <button
+          type="button"
+          class="control-pill"
+          data-browser-filter="all"
+          aria-pressed="${activeCategory === "all"}"
+        >
       All
     </button>
     ${Object.values(CATEGORY_META)
       .map((category) => `
         <button
           type="button"
-          class="control-pill rounded-full px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em]"
+          class="control-pill"
           data-browser-filter="${category.key}"
           aria-pressed="${activeCategory === category.key}"
         >
@@ -70,26 +70,26 @@ export function renderOutcomeBrowser(
     .map((outcome) => {
       const category = CATEGORY_META[outcome.category];
       return `
-        <article class="browser-card rounded-[24px] p-4">
+        <article class="browser-card">
           <div class="flex flex-wrap items-center gap-3">
-            <span class="status-pill rounded-full px-3 py-2 text-[11px] uppercase tracking-[0.18em]" style="color:${category.color}; box-shadow: 0 0 0 1px rgba(255,255,255,0.12), inset 0 0 0 999px rgba(255,255,255,0.02), 0 0 20px ${category.glow};">
+            <span class="status-pill dialog-pill" style="color:${category.color}; box-shadow: 0 0 0 1px rgba(255,255,255,0.12), inset 0 0 0 999px rgba(255,255,255,0.02), 0 0 20px ${category.glow};">
               ${category.name}
             </span>
-            <span class="browser-wheel-label text-[11px] uppercase tracking-[0.18em] text-slate-300">${outcome.wheelLabel}</span>
+            <span class="browser-wheel-label">${outcome.wheelLabel}</span>
           </div>
           <h3 class="mt-4 text-lg font-semibold leading-7 text-white">${outcome.title}</h3>
           <p class="mt-3 font-mono text-sm leading-7 text-slate-200">${outcome.detail}</p>
-          <div class="mt-4 flex flex-wrap gap-2">
+          <div class="browser-card-actions">
             <button
               type="button"
-              class="ghost-button rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white"
+              class="ghost-button"
               data-browser-show-category="${category.key}"
             >
               Show Category
             </button>
             <button
               type="button"
-              class="control-pill rounded-full px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em]"
+              class="control-pill"
               data-browser-only-category="${category.key}"
             >
               Only This Category

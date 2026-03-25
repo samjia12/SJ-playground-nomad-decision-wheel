@@ -8,7 +8,7 @@
       name="description"
       content="A ritual-grade fate wheel for digital nomads, overthinkers, degen optimists, and beautifully unserious adults."
     />
-    <meta name="theme-color" content="#0b0f14" />
+    <meta name="theme-color" content="#0b0a11" />
     <link
       rel="canonical"
       href="https://samjia12.github.io/SJ-playground-nomad-decision-wheel/"
@@ -57,16 +57,15 @@
             },
             colors: {
               accent: {
-                green: "#14F195",
-                blue: "#627EEA",
-                sand: "#D6C2A1",
-                coral: "#FF8A65",
-                amber: "#FFB86B",
+                brand: "#A78BFA",
+                strong: "#C4B5FD",
+                gold: "#F4D07A",
+                travel: "#57D4D0",
+                finance: "#F3C969",
+                discipline: "#7ED38B",
+                social: "#FB8FB2",
+                spirituality: "#B59CFF",
               },
-            },
-            boxShadow: {
-              glow: "0 0 0 1px rgba(255,255,255,0.08), 0 32px 80px rgba(0,0,0,0.45)",
-              neon: "0 0 32px rgba(20,241,149,0.16), 0 24px 60px rgba(0,0,0,0.45)",
             },
           },
         },
@@ -74,163 +73,65 @@
     </script>
     <link rel="stylesheet" href="./styles/app.css" />
   </head>
-  <body class="font-sans antialiased selection:bg-accent-green/30">
+  <body class="font-sans antialiased">
     <a
       href="#main-content"
-      class="sr-only sr-only-focusable absolute left-4 top-4 z-50 rounded-full bg-white/10 px-4 py-2 text-white"
+      class="sr-only sr-only-focusable skip-link"
     >
       Skip to content
     </a>
 
-    <div class="relative mx-auto min-h-screen max-w-[1540px] px-5 pb-8 pt-6 sm:px-8 lg:px-10">
-      <div class="ambient-orb ambient-orb--blue left-[-70px] top-[120px]"></div>
-      <div class="ambient-orb ambient-orb--green right-[4%] top-[340px] [animation-delay:1.2s]"></div>
-      <div class="ambient-orb ambient-orb--coral bottom-[220px] left-[12%] [animation-delay:2.4s]"></div>
+    <div class="page-shell">
+      <div class="page-halo page-halo--violet"></div>
+      <div class="page-halo page-halo--teal"></div>
 
-      <header class="animate-rise-in">
-        <div class="story-panel relative rounded-[32px] border border-white/10 bg-white/[0.03] px-6 py-5 shadow-glow sm:px-8 lg:px-10 lg:py-7">
-          <div class="relative z-10 flex flex-col gap-6">
-            <div class="space-y-4">
-              <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-sand/85">
-                Digital Nomad Ritualware
-              </p>
-              <div class="space-y-3">
-                <h1 class="font-display text-3xl leading-none text-white sm:text-[4rem] xl:text-[4.5rem]">
-                  Nomad Decision Wheel
-                </h1>
-                <p class="max-w-3xl text-sm leading-7 text-slate-200 sm:text-base">
-                  A ritual-grade decision wheel for digital nomads, degen optimists, and adults who want ambiguity to look intentional.
-                </p>
-              </div>
-              <div class="flex flex-wrap gap-3">
-                <a
-                  href="#wheel-ritual"
-                  class="spin-button inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white"
-                >
-                  Spin Now
-                </a>
-                <button
-                  type="button"
-                  data-open-browser
-                  class="ghost-button inline-flex items-center justify-center rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white"
-                >
-                  Browse Outcomes
-                </button>
-              </div>
-
-              <div class="hero-side-links flex flex-wrap items-center gap-4 text-sm text-slate-300">
-                <button
-                  type="button"
-                  data-project-share
-                  class="text-link rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em]"
-                >
-                  Share Project
-                </button>
-                <a
-                  id="playground-link"
-                  data-playground-link
-                  href="https://github.com/samjia12?tab=repositories"
-                  class="text-link rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.22em]"
-                >
-                  Back to Playground
-                </a>
-              </div>
-            </div>
-
-            <div class="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_340px_360px]">
-              <section class="glass-panel rounded-[28px] p-4">
-                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Mode</p>
-                <div id="mode-preset-controls" class="mt-4 flex flex-wrap gap-2"></div>
-                <p id="mode-description" class="mt-4 text-sm leading-7 text-slate-200"></p>
-              </section>
-
-              <section class="glass-panel count-panel rounded-[28px] p-4">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Outcomes</p>
-                    <div class="mt-4 flex items-end gap-3">
-                      <span id="outcome-library-count" class="font-display text-5xl leading-none text-white">—</span>
-                      <span class="mb-1 text-xs uppercase tracking-[0.22em] text-slate-400">library</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    data-open-browser
-                    class="ghost-button rounded-full px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-white"
-                  >
-                    Browse Outcomes
-                  </button>
-                </div>
-                <div class="mt-5 space-y-2 text-sm text-slate-200">
-                  <p>Eligible: <span id="eligible-outcome-count" class="font-semibold text-white">—</span></p>
-                  <p>Active deck: <span id="active-deck-count" class="font-semibold text-white">—</span></p>
-                </div>
-                <p id="outcome-status-caption" class="mt-4 text-sm leading-7 text-slate-300"></p>
-              </section>
-
-              <section class="glass-panel rounded-[28px] p-4">
-                <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Accuracy</p>
-                <div id="accuracy-controls" class="mt-4 flex flex-wrap gap-2"></div>
-                <p id="accuracy-description" class="mt-4 text-sm leading-7 text-slate-200"></p>
-              </section>
-            </div>
+      <header class="site-header animate-rise-in">
+        <div class="top-rail surface-panel">
+          <div class="brand-rail">
+            <span class="brand-chip">Digital Nomad Ritualware</span>
+            <span class="rail-copy">Entertainment-first fate console. All browser state. No backend absolution.</span>
           </div>
         </div>
+
+        <section class="hero-shell">
+          <div class="hero-copy">
+            <p class="eyebrow">Nomad Decision Wheel</p>
+            <h1 class="hero-title">Spin the wheel. Let the interface romanticize your uncertainty.</h1>
+            <p class="hero-tagline">
+              A ritual-grade decision wheel for digital nomads, degen optimists, and adults who want ambiguity to look intentional.
+            </p>
+          </div>
+        </section>
       </header>
 
-      <main id="main-content" class="mt-4 grid items-start gap-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
-        <aside class="order-3 glass-panel rounded-[28px] p-5 xl:order-1">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <p class="font-display text-sm uppercase tracking-[0.24em] text-accent-green/80">
-                History
-              </p>
-              <h2 class="mt-2 text-xl font-semibold text-white">Previous Incidents</h2>
-            </div>
-            <button
-              id="clear-history"
-              type="button"
-              class="ghost-button rounded-full px-3 py-2 text-xs font-medium text-slate-200"
-            >
-              Clear
-            </button>
-          </div>
-          <p class="mt-3 text-sm leading-6 text-slate-300">
-            Click any previous fate to reopen the detail stack. Local only, because public receipts would be excessive.
-          </p>
-          <div id="history-list" class="mt-5 flex max-h-[680px] flex-col gap-3 overflow-y-auto pr-1"></div>
-        </aside>
-
-        <section id="wheel-ritual" class="order-1 xl:order-2">
-          <div class="glass-panel relative overflow-hidden rounded-[34px] px-4 py-6 shadow-neon sm:px-8 lg:px-10 lg:py-10">
-            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(20,241,149,0.08),transparent_40%),radial-gradient(circle_at_50%_20%,rgba(98,126,234,0.12),transparent_22%)]"></div>
-            <div class="relative flex flex-col items-center">
-              <div class="mb-5 flex flex-col items-center gap-3 text-center">
-                <span id="wheel-deck-badge" class="status-pill rounded-full px-3 py-2 text-[11px] uppercase tracking-[0.24em] text-slate-200">
-                  Deck calibrating
-                </span>
-                <span id="wheel-deck-meta" class="text-xs uppercase tracking-[0.2em] text-slate-400">
-                  Archive live, wheel syncing
-                </span>
+      <main id="main-content" class="main-shell">
+        <section id="wheel-ritual" class="ritual-hero">
+          <div class="ritual-grid">
+            <article class="stage-panel surface-panel surface-panel--hero">
+              <div class="stage-head">
+                <div class="stage-head-copy">
+                  <span id="wheel-deck-badge" class="status-pill">Deck calibrating</span>
+                  <h2 class="stage-title">The wheel gets the stage. Everything else waits its turn.</h2>
+                </div>
+                <p id="wheel-deck-meta" class="stage-meta">Archive live, wheel syncing.</p>
               </div>
 
               <div class="wheel-stage">
-                <div class="section-ring"></div>
-                <div class="pointer-events-none absolute inset-[9%] rounded-full border border-white/10"></div>
+                <div class="stage-ring"></div>
                 <div class="pointer-hit" id="pointer-hit" data-active="false"></div>
 
-                <div class="pointer-shadow absolute left-1/2 top-[3%] z-20 -translate-x-1/2" aria-hidden="true">
+                <div class="pointer-shadow" aria-hidden="true">
                   <svg width="74" height="96" viewBox="0 0 74 96" fill="none">
                     <path
                       d="M37 4L69.5 59.5C72.7 64.9 68.8 71.8 62.5 71.8H11.5C5.2 71.8 1.3 64.9 4.5 59.5L37 4Z"
                       fill="url(#pointerGradient)"
-                      stroke="rgba(255,255,255,0.55)"
+                      stroke="rgba(255,255,255,0.58)"
                     />
-                    <circle cx="37" cy="81" r="10" fill="#111827" stroke="rgba(255,255,255,0.36)" />
+                    <circle cx="37" cy="81" r="10" fill="#0F0D16" stroke="rgba(255,255,255,0.34)" />
                     <defs>
                       <linearGradient id="pointerGradient" x1="37" y1="4" x2="37" y2="71.8">
-                        <stop stop-color="#FFD08A" />
-                        <stop offset="1" stop-color="#FF8A65" />
+                        <stop stop-color="#F7E2A8" />
+                        <stop offset="1" stop-color="#D7BCFF" />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -239,7 +140,7 @@
                 <div id="wheel-shell" class="wheel-shell" data-landed="false">
                   <svg
                     viewBox="0 0 800 800"
-                    class="h-full w-full"
+                    class="wheel-svg"
                     role="img"
                     aria-labelledby="wheel-title wheel-desc"
                   >
@@ -249,19 +150,19 @@
                     </desc>
                     <defs>
                       <radialGradient id="wheelCoreGlow" cx="50%" cy="50%" r="60%">
-                        <stop offset="0%" stop-color="rgba(255,255,255,0.3)" />
-                        <stop offset="55%" stop-color="rgba(255,255,255,0.05)" />
+                        <stop offset="0%" stop-color="rgba(255,255,255,0.34)" />
+                        <stop offset="55%" stop-color="rgba(255,255,255,0.08)" />
                         <stop offset="100%" stop-color="rgba(255,255,255,0)" />
                       </radialGradient>
                     </defs>
                     <g transform="translate(400 400)">
                       <circle r="366" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)" stroke-width="8"></circle>
                       <g id="wheel-segments"></g>
-                      <circle r="338" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="2"></circle>
-                      <circle r="297" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5" stroke-dasharray="4 10"></circle>
-                      <circle r="126" fill="rgba(11,15,20,0.84)" stroke="rgba(255,255,255,0.13)" stroke-width="4"></circle>
-                      <circle r="95" fill="url(#wheelCoreGlow)"></circle>
-                      <circle r="30" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.25)" stroke-width="2"></circle>
+                      <circle r="338" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"></circle>
+                      <circle r="302" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1.5" stroke-dasharray="4 10"></circle>
+                      <circle r="128" fill="rgba(11,10,17,0.92)" stroke="rgba(255,255,255,0.12)" stroke-width="4"></circle>
+                      <circle r="94" fill="url(#wheelCoreGlow)"></circle>
+                      <circle r="38" fill="rgba(255,255,255,0.20)" stroke="rgba(255,255,255,0.22)" stroke-width="2"></circle>
                     </g>
                   </svg>
                 </div>
@@ -269,7 +170,7 @@
                 <button
                   id="spin-button"
                   type="button"
-                  class="spin-button absolute z-30 flex h-32 w-32 items-center justify-center rounded-full border border-white/15 text-center font-display text-2xl tracking-[0.16em] text-white sm:h-36 sm:w-36 sm:text-[1.75rem]"
+                  class="spin-button stage-spin"
                   aria-describedby="wheel-status"
                   aria-controls="inline-teaser result-modal history-list"
                 >
@@ -277,184 +178,299 @@
                 </button>
               </div>
 
-              <div class="mt-5 w-full max-w-[660px] text-center">
-                <p class="text-sm text-slate-300">
-                  Filter the archive, choose how theatrical the machine should sound, then let the current deck decide what survives contact with the pointer.
-                </p>
-                <p id="wheel-status" class="mt-3 min-h-[1.75rem] font-mono text-sm" aria-live="polite">
-                  Ritual stack warming up.
-                </p>
-              </div>
-
-              <section id="inline-teaser" class="teaser-card mt-6 hidden w-full max-w-[720px] rounded-[24px] px-5 py-5 text-left">
-                <div class="flex flex-wrap items-center gap-3">
-                  <span id="teaser-lead" class="font-display text-xs uppercase tracking-[0.22em] text-accent-sand/85"></span>
-                  <span id="teaser-category" class="text-xs uppercase tracking-[0.18em] text-slate-400"></span>
+              <div class="stage-footer">
+                <div class="stage-footer-copy">
+                  <p class="stage-caption">
+                    Choose a mode, sharpen or soften the framing, then let the visible deck survive contact with the pointer.
+                  </p>
+                  <p id="wheel-status" class="stage-status" aria-live="polite">
+                    Ritual stack warming up.
+                  </p>
                 </div>
-                <h3 id="teaser-label" class="mt-4 text-2xl font-semibold leading-tight text-white"></h3>
-                <p id="teaser-copy" class="mt-3 font-mono text-sm leading-7 text-slate-200"></p>
-                <div class="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <button id="teaser-open" type="button" class="spin-button rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white">
+                <button
+                  type="button"
+                  data-open-browser
+                  class="ghost-button secondary-browser"
+                >
+                  Browse Outcomes
+                </button>
+              </div>
+            </article>
+
+            <div class="console-column">
+              <section id="inline-teaser" class="result-card surface-panel surface-panel--strong" data-state="empty">
+                <div class="result-head">
+                  <div>
+                    <p id="teaser-lead" class="result-kicker">Current omen</p>
+                    <p id="teaser-category" class="result-meta">Awaiting spin</p>
+                  </div>
+                  <span class="result-badge">Trophy state</span>
+                </div>
+
+                <h2 id="teaser-label" class="result-title">
+                  Spin the wheel to extract a premium-quality bad idea.
+                </h2>
+                <p id="teaser-copy" class="result-copy">
+                  The archive is live, the pointer is judgmental, and the current deck is what this wheel can actually land on right now.
+                </p>
+
+                <div class="outcome-metrics" aria-label="Outcome state">
+                  <article class="metric-card">
+                    <span class="metric-label">Library</span>
+                    <strong id="outcome-library-count" class="metric-value">Archive</strong>
+                  </article>
+                  <article class="metric-card">
+                    <span class="metric-label">Eligible</span>
+                    <strong id="eligible-outcome-count" class="metric-value">Syncing</strong>
+                  </article>
+                  <article class="metric-card">
+                    <span class="metric-label">Active deck</span>
+                    <strong id="active-deck-count" class="metric-value">Loading</strong>
+                  </article>
+                </div>
+
+                <p id="outcome-status-caption" class="result-caption">
+                  Library is the archive. Active deck is what the wheel is currently spinning.
+                </p>
+
+                <div class="result-actions">
+                  <button id="teaser-spin" type="button" class="ghost-button result-action">
+                    Spin Again
+                  </button>
+                  <button id="teaser-open" type="button" class="ghost-button result-action" disabled>
                     Open Detail
                   </button>
-                  <button id="teaser-share" type="button" class="ghost-button rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white">
+                  <button id="teaser-share" type="button" class="ghost-button result-action" disabled>
                     Share Fate
                   </button>
-                </div>
-                <p id="teaser-feedback" class="mt-4 min-h-[1.5rem] text-sm text-accent-sand"></p>
-              </section>
-
-              <section class="mt-6 w-full max-w-[860px]">
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                  <div>
-                    <p class="font-display text-xs uppercase tracking-[0.28em] text-accent-green/80">
-                      Categories
-                    </p>
-                    <p class="mt-2 text-sm leading-6 text-slate-300">
-                      Click to mix. Tap <span class="text-slate-100">Only</span> to isolate. Restore all when you filter the ritual into oblivion.
-                    </p>
-                  </div>
-                  <button
-                    id="restore-filters"
-                    type="button"
-                    class="ghost-button rounded-full px-4 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-white"
-                  >
-                    Restore All
+                  <button id="teaser-copy-link" type="button" class="ghost-button result-action" disabled>
+                    Copy Deep Link
                   </button>
                 </div>
-                <div id="category-legend" class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-1"></div>
+
+                <p id="teaser-feedback" class="result-feedback"></p>
+              </section>
+
+              <section class="control-stack">
+                <article class="control-panel surface-panel">
+                  <div class="control-heading">
+                    <div>
+                      <p class="control-kicker">Mode</p>
+                      <p id="mode-description" class="control-caption">Preset lanes loading.</p>
+                    </div>
+                  </div>
+                  <div id="mode-preset-controls" class="segmented-control"></div>
+                </article>
+
+                <article class="control-panel surface-panel">
+                  <div class="control-heading">
+                    <div>
+                      <p class="control-kicker">Accuracy</p>
+                      <p id="accuracy-description" class="control-caption">Tone framing calibrating.</p>
+                    </div>
+                  </div>
+                  <div id="accuracy-controls" class="segmented-control"></div>
+                </article>
+
+                <article class="control-panel surface-panel">
+                  <div class="control-heading control-heading--split">
+                    <div>
+                      <p class="control-kicker">Categories</p>
+                      <p class="control-caption">
+                        Tap to include or mute. Use <span class="control-inline-emphasis">Only</span> when you want one lane to dominate the ceremony.
+                      </p>
+                    </div>
+                    <button
+                      id="restore-filters"
+                      type="button"
+                      class="ghost-button restore-button"
+                    >
+                      Restore All
+                    </button>
+                  </div>
+                  <div id="category-legend" class="category-cluster"></div>
+                </article>
               </section>
             </div>
           </div>
         </section>
 
-        <aside class="order-2 glass-panel rounded-[28px] p-6 xl:order-3">
-          <div class="flex items-center gap-3">
-            <div class="h-3 w-3 rounded-full bg-accent-green shadow-[0_0_18px_rgba(20,241,149,0.55)]"></div>
-            <p class="font-display text-sm uppercase tracking-[0.24em] text-accent-sand/80">
-              Ritual Deck
-            </p>
+        <section class="utility-section">
+          <div class="section-intro">
+            <p class="eyebrow">Console utilities</p>
+            <h2 class="section-title">
+              Track the incidents. Inspect the deck. Pass the link around with plausible deniability.
+            </h2>
           </div>
 
-          <h2 class="mt-4 text-2xl font-semibold leading-tight text-white">
-            Filter first. Spin second. Pretend this was all strategically inevitable.
-          </h2>
-
-          <div class="mt-6 space-y-4">
-            <div class="marketing-card rounded-[24px] p-4">
-              <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Active Mode</p>
-              <p id="detail-mode-name" class="mt-3 font-display text-2xl text-white"></p>
-              <p id="detail-mode-description" class="mt-3 text-sm leading-7 text-slate-200"></p>
-            </div>
-            <div class="marketing-card rounded-[24px] p-4">
-              <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Current Pool</p>
-              <p id="detail-pool-count" class="mt-3 font-display text-2xl text-accent-green"></p>
-              <p id="detail-category-summary" class="mt-3 text-sm leading-7 text-slate-200"></p>
-              <p id="detail-accuracy-summary" class="mt-3 font-mono text-sm leading-6 text-slate-300"></p>
-              <p id="detail-deck-summary" class="mt-3 text-sm leading-6 text-slate-300"></p>
-            </div>
-            <div class="marketing-card rounded-[24px] p-4">
-              <p class="text-[11px] uppercase tracking-[0.22em] text-slate-400">Spreadability</p>
-              <p class="mt-3 text-sm leading-7 text-slate-200">
-                Result-level sharing carries a deep link that can restore mode, filters, accuracy framing, deck seed, and current omen.
+          <div class="utility-grid">
+            <article class="utility-card surface-panel" id="history-panel">
+              <div class="utility-head">
+                <div>
+                  <p class="control-kicker">Previous incidents</p>
+                  <h3 class="utility-title">Recent history stays local and mildly incriminating.</h3>
+                </div>
+                <div class="utility-actions">
+                  <button
+                    id="history-toggle"
+                    type="button"
+                    class="ghost-button utility-button"
+                    hidden
+                  >
+                    View all
+                  </button>
+                  <button
+                    id="clear-history"
+                    type="button"
+                    class="ghost-button utility-button"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+              <p class="utility-copy">
+                Reopen any previous fate to recover the same result detail. Local only, because public receipts would be excessive.
               </p>
-              <div class="mt-4 flex flex-col gap-3">
+              <div id="history-list" class="history-list"></div>
+            </article>
+
+            <article class="utility-card surface-panel">
+              <div class="utility-head">
+                <div>
+                  <p class="control-kicker">Current configuration</p>
+                  <h3 class="utility-title">The machine should explain itself without killing the vibe.</h3>
+                </div>
+              </div>
+
+              <div class="config-stack">
+                <div class="config-card">
+                  <span class="config-label">Active mode</span>
+                  <p id="detail-mode-name" class="config-value config-value--display"></p>
+                  <p id="detail-mode-description" class="config-copy"></p>
+                </div>
+                <div class="config-card">
+                  <span class="config-label">Active categories</span>
+                  <p id="detail-category-summary" class="config-copy config-copy--strong"></p>
+                </div>
+                <div class="config-card config-card--split">
+                  <div>
+                    <span class="config-label">Accuracy</span>
+                    <p id="detail-accuracy-summary" class="config-copy config-copy--mono"></p>
+                  </div>
+                  <div>
+                    <span class="config-label">Deck seed</span>
+                    <p id="detail-deck-seed" class="config-copy config-copy--mono"></p>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="utility-card surface-panel">
+              <div class="utility-head">
+                <div>
+                  <p class="control-kicker">Active deck and sharing</p>
+                  <h3 class="utility-title">What you see is what this wheel can actually land on.</h3>
+                </div>
+              </div>
+
+              <p id="detail-pool-count" class="deck-count">Archive syncing</p>
+              <p id="detail-deck-summary" class="utility-copy utility-copy--dense">
+                The current deck summary appears here once the ritual console is fully calibrated.
+              </p>
+              <div id="detail-active-preview" class="deck-preview"></div>
+
+              <details class="utility-details">
+                <summary>View active deck</summary>
+                <div id="detail-active-list" class="deck-list"></div>
+              </details>
+
+              <div class="share-card">
                 <button
                   type="button"
                   data-project-share
-                  class="ghost-button rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white"
+                  class="ghost-button utility-share-button"
                 >
                   Share Project
                 </button>
-                <button
-                  type="button"
-                  data-open-browser
-                  class="spin-button rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em] text-white"
-                >
-                  Browse Outcomes
-                </button>
+                <p id="project-share-feedback" class="result-feedback"></p>
+                <p class="share-caption">
+                  Current share state lives under <span id="project-share-url"></span>.
+                </p>
               </div>
-              <p id="project-share-feedback" class="mt-4 min-h-[1.5rem] text-sm text-accent-sand"></p>
-              <p class="mt-3 text-xs leading-6 text-slate-400">
-                Current share state lives under <span id="project-share-url"></span>.
-              </p>
-            </div>
+            </article>
           </div>
-        </aside>
+        </section>
+
+        <section class="editorial-section">
+          <div class="section-intro">
+            <p class="eyebrow">Editorial layer</p>
+            <h2 class="section-title">
+              Keep the humor in the copy. Keep the order in the layout.
+            </h2>
+          </div>
+
+          <div class="editorial-grid">
+            <details class="accordion-card surface-panel" open>
+              <summary>
+                <p class="control-kicker">Why it lands</p>
+                <h3 class="editorial-title">It turns indecision into premium ceremony.</h3>
+              </summary>
+              <div class="accordion-body">
+                <p>
+                  The archive stays big, the wheel stays readable, and the language stays gloriously unserious. This is entertainment-first ritualware, not a dashboard for responsible adults.
+                </p>
+              </div>
+            </details>
+
+            <details class="accordion-card surface-panel" id="broadcast">
+              <summary>
+                <p class="control-kicker">How it spreads</p>
+                <h3 class="editorial-title">The omen gets stronger once it enters the group chat.</h3>
+              </summary>
+              <div class="accordion-body">
+                <p>
+                  Share the result, copy the deep link, reopen the same ritual state later, and let other people witness the exact flavor of chaos you curated.
+                </p>
+                <div id="social-snippets" class="social-snippets"></div>
+              </div>
+            </details>
+
+            <details class="accordion-card surface-panel surface-panel--strong">
+              <summary>
+                <p class="control-kicker">Final CTA</p>
+                <h3 class="editorial-title">
+                  Re-enter the wheel when your next decision deserves a more theatrical interface.
+                </h3>
+              </summary>
+              <div class="accordion-body accordion-body--actions">
+                <a
+                  href="#wheel-ritual"
+                  class="ghost-button utility-share-button"
+                >
+                  Re-enter the Wheel
+                </a>
+                <a
+                  id="playground-link"
+                  data-playground-link
+                  href="https://github.com/samjia12?tab=repositories"
+                  class="ghost-button utility-share-button"
+                >
+                  Back to Playground
+                </a>
+              </div>
+            </details>
+          </div>
+        </section>
       </main>
 
-      <section class="mt-5 animate-rise-in">
-        <div class="marquee-shell rounded-[24px] px-3 py-2">
-          <div class="marquee-track gap-2 font-display text-[10px] uppercase tracking-[0.3em] text-slate-300">
-            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">Local history</span>
-            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">Deep-link sharing</span>
-            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">Filterable deck</span>
-            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">Ritual-grade copy</span>
-            <span class="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2">No backend, all browser state</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="mt-6 grid gap-6 lg:grid-cols-3">
-        <details class="accordion-card marketing-card rounded-[30px] p-6 sm:p-8" open>
-          <summary class="cursor-pointer list-none">
-            <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-sand/80">Why it lands</p>
-            <h2 class="mt-4 text-3xl font-semibold leading-tight text-white">It turns indecision into premium ceremony.</h2>
-          </summary>
-          <div class="mt-5 space-y-4 text-base leading-8 text-slate-200">
-            <p>
-              The archive stays big, the wheel stays readable, and the language stays gloriously unserious. This is entertainment-first ritualware, not a dashboard for responsible adults.
-            </p>
-          </div>
-        </details>
-
-        <details id="broadcast" class="accordion-card marketing-card rounded-[30px] p-6 sm:p-8">
-          <summary class="cursor-pointer list-none">
-            <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-green/80">How it spreads</p>
-            <h2 class="mt-4 text-3xl font-semibold leading-tight text-white">The omen gets stronger once it enters the group chat.</h2>
-          </summary>
-          <div class="mt-5 space-y-5">
-            <p class="text-base leading-8 text-slate-200">
-              Share the result, copy the deep link, reopen the same ritual state later, and let other people witness the exact flavor of chaos you curated.
-            </p>
-            <div id="social-snippets" class="grid gap-4"></div>
-          </div>
-        </details>
-
-        <details class="accordion-card cta-panel rounded-[34px] px-6 py-8 sm:px-8 lg:px-10 lg:py-10">
-          <summary class="cursor-pointer list-none">
-            <p class="font-display text-xs uppercase tracking-[0.32em] text-accent-sand/80">Final CTA</p>
-            <h2 class="mt-4 text-3xl font-semibold leading-tight text-white">
-              Spin the wheel, collect the omen, and make your next bad idea feel unusually well designed.
-            </h2>
-          </summary>
-          <div class="mt-6 flex flex-col gap-3">
-            <a
-              href="#wheel-ritual"
-              class="spin-button inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white"
-            >
-              Re-enter the Wheel
-            </a>
-            <a
-              id="playground-link-footer"
-              data-playground-link
-              href="https://github.com/samjia12?tab=repositories"
-              class="ghost-button inline-flex items-center justify-center rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white"
-            >
-              Back to Playground
-            </a>
-          </div>
-        </details>
-      </section>
-
-      <footer class="mt-6 px-2 pb-4 text-center text-xs leading-6 text-slate-400">
+      <footer class="page-footer">
         For entertainment only. Please do not actually outsource your financial future to a glowing roulette wheel.
       </footer>
     </div>
 
     <div
       id="result-modal"
-      class="modal-backdrop modal-hidden fixed inset-0 z-50 flex items-center justify-center px-4 py-8 transition duration-300"
+      class="modal-backdrop modal-hidden"
       role="dialog"
       aria-modal="true"
       aria-labelledby="modal-title"
@@ -462,74 +478,68 @@
     >
       <div
         id="modal-panel"
-        class="glass-panel modal-panel w-full max-w-[540px] rounded-[30px] border border-white/12 p-6 sm:p-8"
+        class="modal-panel surface-panel surface-panel--strong result-modal-panel"
         tabindex="-1"
       >
-        <div class="flex items-start justify-between gap-5">
+        <div class="dialog-head">
           <div>
-            <p class="font-display text-sm uppercase tracking-[0.28em] text-accent-green/80">
-              Today's Interpretation
-            </p>
-            <h2 id="modal-title" class="mt-3 text-3xl font-semibold leading-tight text-white"></h2>
+            <p class="control-kicker">Today's Interpretation</p>
+            <h2 id="modal-title" class="dialog-title"></h2>
           </div>
           <button
             id="close-modal"
             type="button"
-            class="ghost-button flex h-11 w-11 items-center justify-center rounded-full text-xl text-slate-200"
+            class="ghost-button dialog-close"
             aria-label="Close interpretation"
           >
             ×
           </button>
         </div>
 
-        <div class="mt-5 flex flex-wrap items-center gap-3">
-          <span id="modal-category" class="status-pill rounded-full px-3 py-2 text-xs uppercase tracking-[0.18em]"></span>
-          <span id="modal-time" class="text-xs uppercase tracking-[0.18em] text-slate-400"></span>
+        <div class="dialog-meta">
+          <span id="modal-category" class="status-pill dialog-pill"></span>
+          <span id="modal-time" class="dialog-time"></span>
         </div>
 
-        <p id="modal-lead" class="mt-5 text-sm uppercase tracking-[0.18em] text-accent-sand/80"></p>
-        <p
-          id="modal-interpretation"
-          class="mt-4 rounded-[24px] border border-white/10 bg-white/[0.04] px-5 py-5 font-mono text-sm leading-7 text-slate-100 sm:text-[15px]"
-        ></p>
-
-        <p class="mt-4 text-xs leading-6 text-slate-400">
+        <p id="modal-lead" class="dialog-lead"></p>
+        <p id="modal-interpretation" class="dialog-copy"></p>
+        <p class="dialog-footnote">
           Ceremonial nonsense only. If this sounds wise, that is between you and your unresolved pattern recognition.
         </p>
 
-        <div class="mt-6 flex flex-col gap-3">
+        <div class="dialog-actions">
           <button
             id="modal-spin-again"
             type="button"
-            class="spin-button rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white"
+            class="spin-button dialog-primary"
           >
             Spin Again
           </button>
-          <div class="grid gap-3 sm:grid-cols-2">
+          <div class="dialog-subactions">
             <button
               id="modal-share"
               type="button"
-              class="ghost-button rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white"
+              class="ghost-button utility-share-button"
             >
               Share Fate
             </button>
             <button
               id="modal-copy-link"
               type="button"
-              class="ghost-button rounded-full px-6 py-4 text-sm font-semibold uppercase tracking-[0.22em] text-white"
+              class="ghost-button utility-share-button"
             >
               Copy Deep Link
             </button>
           </div>
         </div>
 
-        <p id="modal-share-feedback" class="mt-4 min-h-[1.5rem] text-sm text-accent-sand"></p>
+        <p id="modal-share-feedback" class="result-feedback"></p>
       </div>
     </div>
 
     <div
       id="browser-modal"
-      class="modal-backdrop modal-hidden fixed inset-0 z-50 flex items-center justify-center px-4 py-4 transition duration-300"
+      class="modal-backdrop modal-hidden modal-backdrop--browser"
       role="dialog"
       aria-modal="true"
       aria-labelledby="browser-title"
@@ -537,50 +547,50 @@
     >
       <div
         id="browser-panel"
-        class="glass-panel modal-panel browser-panel w-full max-w-[980px] rounded-[30px] border border-white/12 p-5 sm:p-6"
+        class="modal-panel browser-panel surface-panel"
         tabindex="-1"
       >
-        <div class="flex items-start justify-between gap-5">
-          <div>
-            <p class="font-display text-sm uppercase tracking-[0.28em] text-accent-green/80">
-              Outcome Browser
-            </p>
-            <h2 id="browser-title" class="mt-3 text-3xl font-semibold leading-tight text-white">
-              Browse the archive before the wheel weaponizes it.
-            </h2>
-            <p id="browser-description" class="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
-              Search the library, filter by category, and decide which part of the archive deserves your next ritual.
-            </p>
+        <div class="browser-shell">
+          <div class="browser-topbar">
+            <div>
+              <p class="control-kicker">Outcome Browser</p>
+              <h2 id="browser-title" class="dialog-title browser-title">
+                Browse the archive before the wheel weaponizes it.
+              </h2>
+              <p id="browser-description" class="browser-description">
+                Search the library, filter by category, and decide which part of the archive deserves your next ritual.
+              </p>
+            </div>
+            <button
+              id="close-browser"
+              type="button"
+              class="ghost-button dialog-close"
+              aria-label="Close outcome browser"
+            >
+              ×
+            </button>
           </div>
-          <button
-            id="close-browser"
-            type="button"
-            class="ghost-button flex h-11 w-11 items-center justify-center rounded-full text-xl text-slate-200"
-            aria-label="Close outcome browser"
-          >
-            ×
-          </button>
-        </div>
 
-        <div class="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
-          <label class="browser-search-block">
-            <span class="sr-only">Search outcomes</span>
-            <input
-              id="browser-search"
-              type="search"
-              placeholder="Search wheel label, title, or detail"
-              class="browser-search-input w-full rounded-[20px] border border-white/12 bg-white/[0.05] px-4 py-3 text-sm text-white outline-none"
-            />
-          </label>
-          <div class="rounded-[20px] border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-slate-200">
-            <span class="block text-[11px] uppercase tracking-[0.18em] text-slate-400">Visible in browser</span>
-            <span id="browser-count" class="mt-2 block font-display text-2xl text-white">Archive loading</span>
+          <div class="browser-toolbar">
+            <label class="browser-search-block">
+              <span class="sr-only">Search outcomes</span>
+              <input
+                id="browser-search"
+                type="search"
+                placeholder="Search wheel label, title, or detail"
+                class="browser-search-input"
+              />
+            </label>
+            <div class="browser-count-card">
+              <span class="config-label">Visible in browser</span>
+              <span id="browser-count" class="browser-count">Archive loading</span>
+            </div>
           </div>
-        </div>
 
-        <div id="browser-filter-legend" class="mt-5 flex flex-wrap gap-2"></div>
-        <p id="browser-empty" class="mt-5 hidden rounded-[22px] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm leading-6 text-slate-200"></p>
-        <div id="browser-results" class="mt-5 browser-results grid gap-4"></div>
+          <div id="browser-filter-legend" class="browser-filter-legend"></div>
+          <p id="browser-empty" class="browser-empty hidden"></p>
+          <div id="browser-results" class="browser-results"></div>
+        </div>
       </div>
     </div>
 
