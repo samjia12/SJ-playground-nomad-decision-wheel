@@ -1,4 +1,4 @@
-const CATEGORY_META = {
+export const CATEGORY_META = {
   travel: {
     key: "travel",
     name: "Travel Impulse",
@@ -31,7 +31,7 @@ const CATEGORY_META = {
   },
 };
 
-const OUTCOMES = [
+export const OUTCOMES = [
   {
     id: 1,
     category: "travel",
@@ -533,7 +533,87 @@ const OUTCOMES = [
   },
 ];
 
-window.NOMAD_WHEEL_DATA = {
-  CATEGORY_META,
-  OUTCOMES,
-};
+export const ALL_CATEGORY_KEYS = Object.keys(CATEGORY_META);
+
+export const MODE_PRESETS = [
+  {
+    key: "all-fates",
+    name: "All Fates",
+    description: "Every category online. Maximum ambiguity. Premium chaos.",
+    categories: ALL_CATEGORY_KEYS,
+  },
+  {
+    key: "travel-spiral",
+    name: "Travel Spiral",
+    description: "Airports, visa lore, and relocation as emotional support.",
+    categories: ["travel", "mythology"],
+  },
+  {
+    key: "degen-exposure",
+    name: "Degen Exposure",
+    description: "Financial unseriousness with excellent lighting.",
+    categories: ["finance"],
+  },
+  {
+    key: "repair-mode",
+    name: "Repair Mode",
+    description: "Discipline, body maintenance, and corrective shame.",
+    categories: ["discipline"],
+  },
+  {
+    key: "social-chaos",
+    name: "Social Chaos",
+    description: "Romance, texting, vibe shifts, and nightlife negligence.",
+    categories: ["social"],
+  },
+  {
+    key: "moon-logic",
+    name: "Moon Logic",
+    description: "Absurd spirituality, atmospheric travel, and luminous bad ideas.",
+    categories: ["mythology", "travel", "social"],
+  },
+];
+
+export const ACCURACY_LEVELS = [
+  {
+    key: "soft-focus",
+    name: "Soft Focus",
+    shortLabel: "Soft Focus",
+    description: "Gentler copy framing. Shorter theatrics. Same dubious wisdom.",
+    statusLabel: "Plausibly Helpful",
+    teaserLead: "The wheel cleared its throat and offered:",
+    detailLead: "A low-volume omen has arrived.",
+    turns: [5, 6],
+    duration: [2600, 3400],
+    shareSuffix: "Softly offensive. Still fair.",
+  },
+  {
+    key: "ritual-grade",
+    name: "Ritual Grade",
+    shortLabel: "Ritual Grade",
+    description: "Default house blend of ceremony, velocity, and self-aware menace.",
+    statusLabel: "Emotionally Dubious",
+    teaserLead: "The wheel landed with confidence on:",
+    detailLead: "Today's interpretation was delivered with ritual-grade certainty.",
+    turns: [7, 9],
+    duration: [4300, 5600],
+    shareSuffix: "Honestly, fair.",
+  },
+  {
+    key: "catastrophic",
+    name: "Catastrophic",
+    shortLabel: "Catastrophic",
+    description: "Longer spin, louder framing, slightly more operatic packaging.",
+    statusLabel: "Suspiciously Certain",
+    teaserLead: "The wheel hit the table and declared:",
+    detailLead: "The machine has chosen violence, poetry, and a final answer.",
+    turns: [9, 11],
+    duration: [5200, 6500],
+    shareSuffix: "The theater budget was visible.",
+  },
+];
+
+export const PLAYGROUND_URL = "https://github.com/samjia12?tab=repositories";
+
+export const PROJECT_SHARE_BLURB =
+  "Nomad Decision Wheel is a ritual-grade fate machine for digital nomads, overthinkers, and beautifully unserious adults. It turns indecision into premium interface drama.";
