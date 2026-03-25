@@ -5,6 +5,10 @@ import {
 } from "../data/outcomes.js";
 import { CUSTOM_MODE_KEY } from "./state.js";
 
+const modeNameLookup = new Map(MODE_PRESETS.map((preset) => [preset.key, preset.name]));
+const accuracyNameLookup = new Map(ACCURACY_LEVELS.map((level) => [level.key, level.name]));
+modeNameLookup.set(CUSTOM_MODE_KEY, "Manual Drift");
+
 export function getElements() {
   return {
     modeControls: document.querySelector("#mode-preset-controls"),
@@ -13,6 +17,7 @@ export function getElements() {
     eligibleOutcomeCount: document.querySelector("#eligible-outcome-count"),
     activeDeckCount: document.querySelector("#active-deck-count"),
     outcomeStatusCaption: document.querySelector("#outcome-status-caption"),
+    outcomeStateNote: document.querySelector("#outcome-state-note"),
     browseButtons: [...document.querySelectorAll("[data-open-browser]")],
     accuracyControls: document.querySelector("#accuracy-controls"),
     accuracyDescription: document.querySelector("#accuracy-description"),
@@ -69,6 +74,7 @@ export function getElements() {
     closeBrowser: document.querySelector("#close-browser"),
     browserSearch: document.querySelector("#browser-search"),
     browserFilterLegend: document.querySelector("#browser-filter-legend"),
+    browserActiveState: document.querySelector("#browser-active-state"),
     browserCount: document.querySelector("#browser-count"),
     browserResults: document.querySelector("#browser-results"),
     browserEmpty: document.querySelector("#browser-empty"),
@@ -139,13 +145,37 @@ export function renderAccuracyControls(elements, activeAccuracyKey) {
 
 export function renderOutcomeCount(
   elements,
-  { libraryCount, eligibleCount, activeDeckCount }
+  { libraryCount, eligibleCount, activeDeckCount, activeCategoryCount }
 ) {
   elements.outcomeLibraryCount.textContent = String(libraryCount);
   elements.eligibleOutcomeCount.textContent = String(eligibleCount);
   elements.activeDeckCount.textContent = String(activeDeckCount);
   elements.outcomeStatusCaption.textContent =
-    "Library is the full archive. Eligible matches your current ritual. Active deck is what this wheel can actually land on.";
+    "Library is the full archive. Eligible is the pool that survived your current ritual. Active deck is what the wheel is visibly spinning.";
+
+  if (activeCategoryCount === 0) {
+    elements.outcomeStateNote.textContent =
+      "You muted every category. Use Restore All to put the ritual back on speaking terms with itself.";
+    elements.restoreFiltersButton.classList.add("is-urgent");
+    return;
+  }
+
+  elements.restoreFiltersButton.classList.remove("is-urgent");
+
+  if (eligibleCount === 1) {
+    elements.outcomeStateNote.textContent =
+      "Single-outcome mode is active. Repeats are expected because the wheel currently has no alternate personality.";
+    return;
+  }
+
+  if (eligibleCount > activeDeckCount) {
+    elements.outcomeStateNote.textContent =
+      "The archive is larger than the stage, so the deck seed decides which outcomes get screen time for this spin.";
+    return;
+  }
+
+  elements.outcomeStateNote.textContent =
+    "All eligible outcomes are currently on stage. The wheel is not hiding any extra lore right now.";
 }
 
 export function renderCategoryLegend(
@@ -216,6 +246,8 @@ export function renderHistory(
     .map((entry) => {
       const category = CATEGORY_META[entry.category];
       const title = entry.title ?? entry.label;
+      const modeName = modeNameLookup.get(entry.modeKey) ?? "All Fates";
+      const accuracyName = accuracyNameLookup.get(entry.accuracyKey) ?? "Ritual Grade";
       return `
         <button
           type="button"
@@ -231,7 +263,11 @@ export function renderHistory(
                 <p class="history-title text-sm font-semibold leading-6 text-white">${title}</p>
                 <time class="history-time flex-none text-xs text-slate-400" datetime="${entry.isoTime}">${entry.displayTime}</time>
               </div>
-              <p class="mt-2 text-[11px] uppercase tracking-[0.18em] text-slate-300">${category.name}</p>
+              <div class="history-meta-row">
+                <span class="history-meta-pill">${category.compactName}</span>
+                <span class="history-meta-pill">${modeName}</span>
+                <span class="history-meta-pill">${accuracyName}</span>
+              </div>
             </div>
           </div>
         </button>
@@ -296,15 +332,21 @@ export function renderDetailDeck(
       ? activeCategories.map((categoryKey) => CATEGORY_META[categoryKey].name).join(" • ")
       : "No active categories. The wheel is currently fasting.";
   elements.detailAccuracySummary.textContent = `${accuracy.shortLabel} • ${accuracy.statusLabel}`;
-  elements.detailPoolCount.textContent = `${libraryCount} library • ${eligibleCount} eligible • ${activeDeckCount} active`;
+  elements.detailPoolCount.innerHTML = `
+    <span class="deck-metric"><strong>${libraryCount}</strong><span>Library</span></span>
+    <span class="deck-metric"><strong>${eligibleCount}</strong><span>Eligible</span></span>
+    <span class="deck-metric"><strong>${activeDeckCount}</strong><span>Active deck</span></span>
+  `;
   elements.detailDeckSummary.textContent =
-    "The wheel never renders more than the current active deck. What you see on the stage is what can actually land.";
+    eligibleCount > activeDeckCount
+      ? "Archive is everything. Eligible is your filtered pool. Active deck is the visible seeded slice currently allowed on stage."
+      : "Archive is everything. Eligible and active deck currently match, so the wheel is showing the whole filtered pool.";
   elements.detailDeckSeed.textContent = deckSeed;
   elements.detailActivePreview.innerHTML = activeWheelPool
-    .slice(0, 6)
+    .slice(0, 8)
     .map(
       (outcome) => `
-        <span class="deck-chip">${String(
+        <span class="deck-chip deck-chip--preview">${String(
           outcome.wheelLabel ?? outcome.shortLabel ?? outcome.title
         ).toUpperCase()}</span>
       `

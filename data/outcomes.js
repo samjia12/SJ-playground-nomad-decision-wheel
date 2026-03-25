@@ -1104,8 +1104,3 @@ export const ACCURACY_LEVELS = [
     shareSuffix: "The theater budget was visible.",
   },
 ];
-
-export const PLAYGROUND_URL = "https://github.com/samjia12?tab=repositories";
-
-export const PROJECT_SHARE_BLURB =
-  "Nomad Decision Wheel is a ritual-grade fate machine for digital nomads, overthinkers, and beautifully unserious adults. It turns indecision into premium interface drama.";

@@ -4,6 +4,16 @@ Nomad Decision Wheel is a static, ritual-grade fate machine for digital nomads, 
 
 The live UX is the product source of truth. This repo is structured to match that behavior directly: no backend, no auth, no CMS, no framework-heavy rewrite, and no hidden server state.
 
+## V4-lite
+
+V4-lite keeps the same ritualware product, but tightens the maintenance story and the first-time-user clarity:
+
+- Centralized site and host configuration for canonical/share/playground URLs
+- Clearer `Library / Eligible / Active deck` explanation near the first-screen metrics
+- Stronger browser UX with keyword highlighting, active-filter feedback, and recovery CTAs
+- Richer history cards that surface category, mode preset, and accuracy mode
+- Lightweight custom browser events for future observability without third-party analytics
+
 ## Design Principles
 
 - Entertainment first
@@ -25,6 +35,7 @@ The live UX is the product source of truth. This repo is structured to match tha
 - Stores history locally with schema migration and deduplication
 - Supports shareable deep links that restore the ritual state
 - Includes an outcome browser with search and category filtering
+- Dispatches lightweight `ndw:*` custom events for future instrumentation
 
 ## Project Structure
 
@@ -37,8 +48,10 @@ The live UX is the product source of truth. This repo is structured to match tha
 │   ├── app.css
 │   └── tokens.css
 ├── data
+│   ├── site-config.js
 │   └── outcomes.js
 ├── js
+│   ├── analytics.js
 │   ├── deck.js
 │   ├── dom.js
 │   ├── filters.js
@@ -56,7 +69,13 @@ The live UX is the product source of truth. This repo is structured to match tha
 ## Module Responsibilities
 
 - [`data/outcomes.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/data/outcomes.js)
-  Holds the normalized outcome archive, category metadata, mode presets, accuracy levels, and project-level share copy.
+  Holds the normalized outcome archive, category metadata, mode presets, and accuracy levels.
+
+- [`data/site-config.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/data/site-config.js)
+  Holds the single source of truth for canonical URLs, social image URLs, project share base URLs, and the playground URL.
+
+- [`js/analytics.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/analytics.js)
+  Dispatches lightweight `CustomEvent` analytics hooks without introducing a third-party SDK.
 
 - [`js/state.js`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/js/state.js)
   Holds the app state shape, deck seed helpers, mode lookup helpers, and stable category serialization helpers.
@@ -149,6 +168,8 @@ Older result links are still tolerated through stable `id` restoration plus a le
 
 - Search by wheel label, title, detail, or category label
 - Filter the browser by category
+- Highlights matched query text inside visible results
+- Shows active browser state and recovery CTAs when the view gets too specific
 - Apply `Only This Category` back to the live wheel state
 - No direct “force this result” cheat path
 
@@ -160,6 +181,7 @@ Older result links are still tolerated through stable `id` restoration plus a le
 - Deduplicated by latest occurrence
 - Hard-capped at 20 entries
 - Clicking an entry reopens the same ritual context when enough state is available
+- Cards display the outcome title, category, time, mode preset, and accuracy mode
 
 ## Accessibility
 
@@ -173,6 +195,13 @@ Older result links are still tolerated through stable `id` restoration plus a le
 
 ## Metadata And Sharing
 
+Site and host settings now come from a single config source:
+
+- canonical URL
+- public social image URL
+- playground URL
+- project share base URL
+
 The static HTML includes:
 
 - meta description
@@ -181,6 +210,19 @@ The static HTML includes:
 - Twitter card tags
 - SVG favicon
 - static share artwork via [`social-card.svg`](/Users/samjia/Downloads/codex/Decision%20Wheel%20%20/social-card.svg)
+
+## Custom Events
+
+The app dispatches browser-native events for future observability:
+
+- `ndw:spin_start`
+- `ndw:spin_end`
+- `ndw:share_result`
+- `ndw:share_project`
+- `ndw:filters_changed`
+- `ndw:browser_search`
+
+Each event includes a useful `detail` payload such as current mode, accuracy, active categories, deck seed, result id, share method, or browser query context.
 
 ## Local Run
 
@@ -207,3 +249,26 @@ Live URL:
 - This is not a productivity dashboard.
 - The ritual-grade copy tone is intentionally protected.
 - If the wheel sounds wise, that is between you and your pattern recognition.
+
+## Manual QA Checklist
+
+- Load the app from a plain static server and confirm there are no broken asset paths
+- Verify `Library`, `Eligible`, and `Active deck` all update when mode or category filters change
+- Confirm the first-screen explainer still makes sense in these edge states:
+  - zero active categories
+  - one eligible outcome
+  - eligible pool larger than active deck
+- Open the Outcome Browser and verify query highlighting, active-filter text, empty-state recovery buttons, and keyboard focus from search into results
+- Spin once and confirm history persists locally with title, category, timestamp, mode, and accuracy
+- Share a result and confirm the copied/shared link restores the same ritual state
+- Verify `Escape`, focus trap, focus return, and reduced-motion behavior still work for dialogs
+
+## Changelog
+
+### V4-lite
+
+- Added centralized site config for canonical/share/playground URLs
+- Added lightweight `ndw:*` custom analytics events
+- Clarified archive vs eligible vs active deck in the first screen and utility panels
+- Upgraded Outcome Browser with match highlighting, active-filter feedback, and recovery CTAs
+- Expanded history card metadata without breaking old localStorage entries

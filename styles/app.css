@@ -491,6 +491,13 @@ summary:focus-visible {
   opacity: 0.42;
 }
 
+.ghost-button.is-urgent {
+  border-color: rgba(244, 208, 122, 0.36);
+  color: var(--text-1);
+  background: rgba(244, 208, 122, 0.08);
+  box-shadow: 0 0 0 1px rgba(244, 208, 122, 0.08);
+}
+
 .stage-spin {
   position: absolute;
   z-index: 5;
@@ -645,6 +652,34 @@ summary:focus-visible {
 
 .result-caption {
   margin: 16px 0 0;
+}
+
+.ritual-explainer {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ritual-explainer p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.ritual-explainer strong {
+  color: var(--text-1);
+}
+
+.outcome-state-note {
+  margin: 12px 0 0;
+  color: var(--gold);
+  font-size: 0.9rem;
+  line-height: 1.65;
 }
 
 .result-actions {
@@ -903,6 +938,27 @@ summary:focus-visible {
   text-transform: uppercase;
 }
 
+.history-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.history-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-2);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .config-stack {
   margin-top: 18px;
 }
@@ -948,11 +1004,34 @@ summary:focus-visible {
 }
 
 .deck-count {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin: 16px 0 0;
-  color: var(--brand-strong);
+}
+
+.deck-metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0.72rem 0.86rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.deck-metric strong {
+  color: var(--text-1);
   font-family: "Space Grotesk", sans-serif;
-  font-size: 1.5rem;
-  line-height: 1.12;
+  font-size: 1.12rem;
+  line-height: 1;
+}
+
+.deck-metric span {
+  color: var(--text-3);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .utility-copy {
@@ -989,6 +1068,12 @@ summary:focus-visible {
   font-size: 0.72rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.deck-chip--preview {
+  border-color: rgba(196, 181, 253, 0.16);
+  background: rgba(196, 181, 253, 0.08);
+  color: var(--text-1);
 }
 
 .deck-chip--full {
@@ -1266,6 +1351,14 @@ summary:focus-visible {
   padding: 0 22px 16px;
 }
 
+.browser-active-state {
+  margin: 0;
+  padding: 0 22px 16px;
+  color: var(--text-2);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
 .browser-empty {
   margin: 0 22px 16px;
   border-radius: 20px;
@@ -1275,6 +1368,17 @@ summary:focus-visible {
   color: var(--text-2);
   font-size: 0.95rem;
   line-height: 1.8;
+}
+
+.browser-empty p {
+  margin: 0;
+}
+
+.browser-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .browser-results {
@@ -1295,10 +1399,32 @@ summary:focus-visible {
   padding: 18px;
 }
 
+.browser-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.browser-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
 .browser-wheel-label {
   color: var(--text-3);
   font-size: 0.74rem;
   letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.browser-outcome-id {
+  color: var(--text-3);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -1314,6 +1440,13 @@ summary:focus-visible {
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.88rem;
   line-height: 1.75;
+}
+
+.browser-highlight {
+  padding: 0 0.12em;
+  border-radius: 0.35em;
+  background: rgba(244, 208, 122, 0.16);
+  color: var(--text-1);
 }
 
 .browser-card-actions {

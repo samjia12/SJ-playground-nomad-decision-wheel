@@ -5,38 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nomad Decision Wheel</title>
     <meta
+      id="site-description"
       name="description"
-      content="A ritual-grade fate wheel for digital nomads, overthinkers, degen optimists, and beautifully unserious adults."
+      content=""
     />
     <meta name="theme-color" content="#0b0a11" />
     <link
+      id="site-canonical"
       rel="canonical"
-      href="https://samjia12.github.io/SJ-playground-nomad-decision-wheel/"
+      href=""
     />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Nomad Decision Wheel" />
     <meta property="og:title" content="Nomad Decision Wheel" />
     <meta
+      id="site-og-description"
       property="og:description"
-      content="Spin a ritual-grade fate wheel for digital nomads, degen optimists, and other beautifully unserious adults."
+      content=""
     />
     <meta
+      id="site-og-url"
       property="og:url"
-      content="https://samjia12.github.io/SJ-playground-nomad-decision-wheel/"
+      content=""
     />
     <meta
+      id="site-og-image"
       property="og:image"
-      content="https://samjia12.github.io/SJ-playground-nomad-decision-wheel/social-card.svg"
+      content=""
     />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Nomad Decision Wheel" />
     <meta
+      id="site-twitter-description"
       name="twitter:description"
-      content="A ritual-grade fate wheel for digital nomads, overthinkers, degen optimists, and beautifully unserious adults."
+      content=""
     />
     <meta
+      id="site-twitter-image"
       name="twitter:image"
-      content="https://samjia12.github.io/SJ-playground-nomad-decision-wheel/social-card.svg"
+      content=""
     />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -70,6 +77,11 @@
           },
         },
       };
+    </script>
+    <script type="module">
+      import { applySiteConfigToDocument } from "./data/site-config.js";
+
+      applySiteConfigToDocument(document);
     </script>
     <link rel="stylesheet" href="./styles/app.css" />
   </head>
@@ -229,8 +241,16 @@
                   </article>
                 </div>
 
+                <div class="ritual-explainer" aria-label="How the counts work">
+                  <p><strong>Library</strong> is the full omen archive.</p>
+                  <p><strong>Eligible</strong> survived your current mode and category filters.</p>
+                  <p><strong>Active deck</strong> is the seeded slice the wheel can actually land on right now.</p>
+                </div>
                 <p id="outcome-status-caption" class="result-caption">
                   Library is the archive. Active deck is what the wheel is currently spinning.
+                </p>
+                <p id="outcome-state-note" class="outcome-state-note">
+                  If the archive is larger than the stage, the deck seed decides which outcomes get screen time for this spin.
                 </p>
 
                 <div class="result-actions">
@@ -280,11 +300,11 @@
                         Tap to include or mute. Use <span class="control-inline-emphasis">Only</span> when you want one lane to dominate the ceremony.
                       </p>
                     </div>
-                    <button
-                      id="restore-filters"
-                      type="button"
-                      class="ghost-button restore-button"
-                    >
+                <button
+                  id="restore-filters"
+                  type="button"
+                  class="ghost-button restore-button"
+                >
                       Restore All
                     </button>
                   </div>
@@ -452,7 +472,7 @@
                 <a
                   id="playground-link"
                   data-playground-link
-                  href="https://github.com/samjia12?tab=repositories"
+                  href="#"
                   class="ghost-button utility-share-button"
                 >
                   Back to Playground
@@ -588,7 +608,8 @@
           </div>
 
           <div id="browser-filter-legend" class="browser-filter-legend"></div>
-          <p id="browser-empty" class="browser-empty hidden"></p>
+          <p id="browser-active-state" class="browser-active-state" aria-live="polite"></p>
+          <div id="browser-empty" class="browser-empty hidden"></div>
           <div id="browser-results" class="browser-results"></div>
         </div>
       </div>

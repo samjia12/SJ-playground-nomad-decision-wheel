@@ -2,6 +2,7 @@ import {
   CATEGORY_META,
   OUTCOME_LIBRARY,
 } from "../data/outcomes.js";
+import { dispatchNDWEvent } from "./analytics.js";
 import {
   getCategoryCounts,
   getEligibleOutcomes,
@@ -115,6 +116,43 @@ function getCurrentDeckState() {
   };
 }
 
+function buildStateSnapshot(deckState = getCurrentDeckState()) {
+  return {
+    modeKey: state.modeKey,
+    accuracyKey: state.accuracyKey,
+    activeCategories: [...state.activeCategories],
+    deckSeed: state.deckSeed,
+    eligibleCount: deckState.eligibleOutcomes.length,
+    activeDeckCount: deckState.activeWheelPool.length,
+    activeOutcomeId: state.activeOutcomeId,
+  };
+}
+
+function emitFiltersChanged(source) {
+  const deckState = getCurrentDeckState();
+  dispatchNDWEvent("ndw:filters_changed", {
+    source,
+    ...buildStateSnapshot(deckState),
+  });
+}
+
+function getBrowserResults() {
+  return filterOutcomeLibrary(OUTCOME_LIBRARY, {
+    query: state.browserQuery,
+    activeCategory: state.browserCategory,
+  });
+}
+
+function emitBrowserSearch(source) {
+  const results = getBrowserResults();
+  dispatchNDWEvent("ndw:browser_search", {
+    source,
+    query: state.browserQuery,
+    activeCategory: state.browserCategory,
+    resultCount: results.length,
+  });
+}
+
 function updateSpinAvailability({ eligibleOutcomes, activeWheelPool }) {
   if (!eligibleOutcomes.length || !activeWheelPool.length) {
     setSpinState(elements, { disabled: true, label: "Restore" });
@@ -172,6 +210,7 @@ function renderActiveStateSummary({ libraryCount, eligibleOutcomes, activeWheelP
     libraryCount,
     eligibleCount: eligibleOutcomes.length,
     activeDeckCount: activeWheelPool.length,
+    activeCategoryCount: state.activeCategories.size,
   });
   renderCategoryLegend(elements, {
     categoryCounts: libraryCategoryCounts,
@@ -230,11 +269,9 @@ function renderBrowserState() {
     elements.browserSearch.value = state.browserQuery;
   }
 
+  const browserResults = getBrowserResults();
   renderOutcomeBrowser(elements, {
-    outcomes: filterOutcomeLibrary(OUTCOME_LIBRARY, {
-      query: state.browserQuery,
-      activeCategory: state.browserCategory,
-    }),
+    outcomes: browserResults,
     query: state.browserQuery,
     activeCategory: state.browserCategory,
     totalCount: OUTCOME_LIBRARY.length,
@@ -333,6 +370,10 @@ async function handleSpin() {
   state.status = "spinning";
   state.activeOutcomeId = null;
   state.modalResultId = null;
+  dispatchNDWEvent("ndw:spin_start", {
+    ...buildStateSnapshot({ eligibleOutcomes, activeWheelPool }),
+    targetOutcomeId: outcome.id,
+  });
   renderAll();
   setWheelStatus(
     elements,
@@ -362,6 +403,13 @@ async function handleSpin() {
   syncHash(state);
   renderAll({ historyHighlightId: historyEntry.id });
   flashPointer(elements);
+  dispatchNDWEvent("ndw:spin_end", {
+    ...buildStateSnapshot({ eligibleOutcomes, activeWheelPool }),
+    outcomeId: outcome.id,
+    outcomeTitle: outcome.title,
+    outcomeCategory: outcome.category,
+    historyId: historyEntry.id,
+  });
   setWheelStatus(elements, `${accuracy.teaserLead} ${outcome.title}`, "neutral");
 
   window.setTimeout(() => {
@@ -393,6 +441,7 @@ function bindEvents() {
     if (!button) return;
     setModePreset(state, button.dataset.modeKey);
     state.modalResultId = null;
+    emitFiltersChanged("mode_preset");
     syncHash(state);
     renderAll();
   });
@@ -412,6 +461,7 @@ function bindEvents() {
     if (toggle) {
       toggleCategory(state, toggle.dataset.categoryToggle);
       state.modalResultId = null;
+      emitFiltersChanged("category_toggle");
       syncHash(state);
       renderAll();
       return;
@@ -420,6 +470,7 @@ function bindEvents() {
     if (only) {
       isolateCategory(state, only.dataset.categoryOnly);
       state.modalResultId = null;
+      emitFiltersChanged("category_only");
       syncHash(state);
       renderAll();
     }
@@ -427,6 +478,7 @@ function bindEvents() {
 
   elements.restoreFiltersButton.addEventListener("click", () => {
     restoreAllCategories(state);
+    emitFiltersChanged("restore_all");
     syncHash(state);
     renderAll();
   });
@@ -502,6 +554,17 @@ function bindEvents() {
   elements.browserSearch.addEventListener("input", (event) => {
     state.browserQuery = event.target.value;
     renderBrowserState();
+    emitBrowserSearch("query");
+  });
+
+  elements.browserSearch.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") {
+      const firstResultAction = elements.browserResults.querySelector("button, a[href]");
+      if (firstResultAction instanceof HTMLElement) {
+        event.preventDefault();
+        firstResultAction.focus();
+      }
+    }
   });
 
   elements.browserFilterLegend.addEventListener("click", (event) => {
@@ -509,6 +572,7 @@ function bindEvents() {
     if (!trigger) return;
     state.browserCategory = trigger.dataset.browserFilter;
     renderBrowserState();
+    emitBrowserSearch("category_filter");
   });
 
   elements.browserResults.addEventListener("click", (event) => {
@@ -518,15 +582,48 @@ function bindEvents() {
     if (showCategory) {
       state.browserCategory = showCategory.dataset.browserShowCategory;
       renderBrowserState();
+      emitBrowserSearch("show_category");
       return;
     }
 
     if (onlyCategory) {
       isolateCategory(state, onlyCategory.dataset.browserOnlyCategory);
       browser.close({ restoreFocus: false });
+      emitFiltersChanged("browser_only_category");
       syncHash(state);
       renderAll();
       elements.spinButton.focus();
+    }
+  });
+
+  elements.browserEmpty.addEventListener("click", (event) => {
+    const clearQuery = event.target.closest("[data-browser-clear-query]");
+    const resetView = event.target.closest("[data-browser-reset-view]");
+
+    if (clearQuery) {
+      state.browserQuery = "";
+      elements.browserSearch.value = "";
+      renderBrowserState();
+      emitBrowserSearch("clear_query");
+      elements.browserSearch.focus();
+      return;
+    }
+
+    if (resetView) {
+      state.browserQuery = "";
+      state.browserCategory = "all";
+      elements.browserSearch.value = "";
+      renderBrowserState();
+      emitBrowserSearch("reset_view");
+      elements.browserSearch.focus();
+    }
+  });
+
+  elements.browserPanel.addEventListener("keydown", (event) => {
+    if (event.key === "/" && document.activeElement !== elements.browserSearch) {
+      event.preventDefault();
+      elements.browserSearch.focus();
+      elements.browserSearch.select();
     }
   });
 
